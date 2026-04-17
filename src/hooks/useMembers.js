@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { collection, onSnapshot, addDoc, deleteDoc, doc, serverTimestamp } from 'firebase/firestore';
+import { collection, onSnapshot, addDoc, updateDoc, deleteDoc, doc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../services/firebase';
 import { useAuth } from '../context/AuthContext';
 
@@ -37,9 +37,14 @@ export const useMembers = () => {
     });
   };
 
+  const updateMember = async (id, data) => {
+    const docRef = doc(db, 'families', familyId, 'members', id);
+    await updateDoc(docRef, data);
+  };
+
   const deleteMember = async (id) => {
     await deleteDoc(doc(db, 'families', familyId, 'members', id));
   };
 
-  return { members, loading, addMember, deleteMember };
+  return { members, loading, addMember, updateMember, deleteMember };
 };
