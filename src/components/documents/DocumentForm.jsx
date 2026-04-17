@@ -43,19 +43,18 @@ const DocumentForm = ({ initialData, onSubmit, onCancel }) => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <label className="block text-sm font-medium text-slate-300 mb-1">Family Member</label>
-          <input 
-            type="text"
-            name="member" 
-            list="member-list-docs"
+          <select
+            name="member"
             required
-            placeholder="Type or select name"
-            value={formData.member} 
+            value={formData.member}
             onChange={handleChange}
-            className="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-2.5 text-slate-100 focus:outline-none focus:border-indigo-500 transition-colors"
-          />
-          <datalist id="member-list-docs">
-            {members.map(m => <option key={m.id} value={m.name} />)}
-          </datalist>
+            className="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-2.5 text-slate-100 focus:outline-none focus:border-indigo-500 transition-colors appearance-none"
+          >
+            <option value="" disabled>Select a family member</option>
+            {members.map(m => (
+              <option key={m.id} value={m.name}>{m.name}</option>
+            ))}
+          </select>
         </div>
         
         <div>
