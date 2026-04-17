@@ -21,17 +21,26 @@ const FamilyMembersPage = () => {
   };
 
   const handleSubmit = async (formData) => {
-    if (editingMember) {
-      await updateMember(editingMember.id, formData);
-    } else {
-      await addMember(formData);
+    try {
+      if (editingMember) {
+        await updateMember(editingMember.id, formData);
+      } else {
+        await addMember(formData);
+      }
+      handleCloseModal();
+    } catch (err) {
+      console.error(err);
+      alert("Error saving Member! Check Firebase Database Rules.");
     }
-    handleCloseModal();
   };
 
   const handleDelete = async (member) => {
     if (window.confirm(`Are you sure you want to remove ${member.name}?`)) {
-      await deleteMember(member.id);
+      try {
+        await deleteMember(member.id);
+      } catch (err) {
+        alert("Delete failed! Check Firebase Database Rules.");
+      }
     }
   };
 

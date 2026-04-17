@@ -28,19 +28,27 @@ const PasswordsPage = () => {
   };
 
   const handleSubmit = async (formData) => {
-    if (editingPwd) await updatePassword(editingPwd.id, formData);
-    else await addPassword(formData);
+    try {
+      if (editingPwd) await updatePassword(editingPwd.id, formData);
+      else await addPassword(formData);
 
-    if (formData.member && !members.some(m => m.name.toLowerCase() === formData.member.toLowerCase())) {
-      await addMember({ name: formData.member, role: 'member' });
+      if (formData.member && !members.some(m => m.name.toLowerCase() === formData.member.toLowerCase())) {
+        await addMember({ name: formData.member, role: 'member' });
+      }
+      handleCloseModal();
+    } catch (err) {
+      console.error(err);
+      alert("Error saving Password! Check Firebase Database Rules.");
     }
-
-    handleCloseModal();
   };
 
   const handleDelete = async (pwd) => {
     if (window.confirm("Are you sure you want to delete this password?")) {
-      await deletePassword(pwd.id);
+      try {
+        await deletePassword(pwd.id);
+      } catch (err) {
+        alert("Delete failed! Check Firebase Database Rules.");
+      }
     }
   };
 

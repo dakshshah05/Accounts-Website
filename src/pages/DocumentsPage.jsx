@@ -28,20 +28,27 @@ const DocumentsPage = () => {
   };
 
   const handleSubmit = async (formData) => {
-    if (editingDoc) await updateDocument(editingDoc.id, formData);
-    else await addDocument(formData);
+    try {
+      if (editingDoc) await updateDocument(editingDoc.id, formData);
+      else await addDocument(formData);
 
-    // Auto-create member if they manually typed a new one organically
-    if (formData.member && !members.some(m => m.name.toLowerCase() === formData.member.toLowerCase())) {
-      await addMember({ name: formData.member, role: 'member' });
+      if (formData.member && !members.some(m => m.name.toLowerCase() === formData.member.toLowerCase())) {
+        await addMember({ name: formData.member, role: 'member' });
+      }
+      handleCloseModal();
+    } catch (err) {
+      console.error(err);
+      alert("Error saving Document! Check Firebase Database Rules.");
     }
-
-    handleCloseModal();
   };
 
   const handleDelete = async (doc) => {
     if (window.confirm("Are you sure you want to delete this document?")) {
-      await deleteDocument(doc.id);
+      try {
+        await deleteDocument(doc.id);
+      } catch (err) {
+        alert("Delete failed! Check Firebase Database Rules.");
+      }
     }
   };
 

@@ -15,12 +15,9 @@ const FDPage = () => {
   const { state, dispatch } = useFamilyData();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingFd, setEditingFd] = useState(null);
-  const [localFds, setLocalFds] = useState([]); // Fallback for demo without firebase
-
-  const allFds = fds && fds.length > 0 ? fds : localFds;
 
   // Filter and Sort Logic
-  let processedFds = [...allFds];
+  let processedFds = fds ? [...fds] : [];
   
   if (state.memberFilter !== 'All') {
     processedFds = processedFds.filter(fd => fd.member === state.memberFilter);
@@ -55,11 +52,9 @@ const FDPage = () => {
   const handleSubmit = async (formData) => {
     try {
       if (editingFd) {
-        if (fds?.length > 0) await updateFd(editingFd.id, formData);
-        else setLocalFds(prev => prev.map(f => f.id === editingFd.id ? { ...f, ...formData } : f));
+        await updateFd(editingFd.id, formData);
       } else {
-        if (fds?.length > 0) await addFd(formData);
-        else setLocalFds(prev => [{ ...formData, id: Date.now().toString() }, ...prev]);
+        await addFd(formData);
       }
 
       if (formData.member && members && !members.some(m => m.name.toLowerCase() === formData.member.toLowerCase())) {
@@ -68,17 +63,18 @@ const FDPage = () => {
 
       handleCloseModal();
     } catch (err) {
-      alert("Error saving FD. If using mock, this will work locally.");
+      console.error(err);
+      alert("Error saving. Please check your Firebase Database Rules.");
     }
   };
 
   const handleDelete = async (fd) => {
     if (window.confirm("Are you sure you want to delete this FD?")) {
       try {
-        if (fds?.length > 0) await deleteFd(fd.id);
-        else setLocalFds(prev => prev.filter(f => f.id !== fd.id));
+        await deleteFd(fd.id);
       } catch (err) {
         console.error("Delete failed", err);
+        alert("Delete failed. Check Firebase Rules.");
       }
     }
   };
