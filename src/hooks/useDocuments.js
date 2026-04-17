@@ -1,25 +1,47 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { collection, onSnapshot, addDoc, updateDoc, deleteDoc, doc, serverTimestamp } from 'firebase/firestore';
+import { db } from '../services/firebase';
+import { useAuth } from '../context/AuthContext';
 
 export const useDocuments = () => {
+  const { familyId, userProfile } = useAuth();
   const [documents, setDocuments] = useState([]);
-  const [loading] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!familyId) { setLoading(false); return; }
+
+    const colRef = collection(db, 'families', familyId, 'documents');
+    const unsubscribe = onSnapshot(colRef, (snapshot) => {
+      const data = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+      setDocuments(data);
+      setLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, [familyId]);
 
   const addDocument = async (data) => {
-    const newDoc = {
+    await addDoc(collection(db, 'families', familyId, 'documents'), {
       ...data,
-      id: Date.now().toString(),
-      updatedBy: 'Family Admin',
-      updatedAt: new Date()
-    };
-    setDocuments(prev => [newDoc, ...prev]);
+      updatedBy: userProfile.name,
+      updatedAt: serverTimestamp()
+    });
   };
 
   const updateDocument = async (id, data) => {
-    setDocuments(prev => prev.map(d => d.id === id ? { ...d, ...data, updatedAt: new Date() } : d));
+    await updateDoc(doc(db, 'families', familyId, 'documents', id), {
+      ...data,
+      updatedBy: userProfile.name,
+      updatedAt: serverTimestamp()
+    });
   };
 
   const deleteDocument = async (id) => {
-    setDocuments(prev => prev.filter(d => d.id !== id));
+    await deleteDoc(doc(db, 'families', familyId, 'documents', id));
   };
 
   return { documents, loading, addDocument, updateDocument, deleteDocument };

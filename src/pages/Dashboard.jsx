@@ -40,7 +40,7 @@ const Dashboard = () => {
   ];
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto opacity-0 animate-in fade-in zoom-in-95 duration-500 fill-mode-forwards">
+    <div className="space-y-6 max-w-7xl mx-auto">
       {/* Header */}
       <header className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>

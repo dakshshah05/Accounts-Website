@@ -1,28 +1,78 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { collection, onSnapshot, addDoc, updateDoc, deleteDoc, doc, serverTimestamp } from 'firebase/firestore';
+import { db } from '../services/firebase';
+import { useAuth } from '../context/AuthContext';
 
 export const useFDs = () => {
+  const { familyId, userProfile } = useAuth();
   const [fds, setFds] = useState([]);
-  const [loading] = useState(false);
-  const [error] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    if (!familyId) {
+      setLoading(false);
+      return;
+    }
+
+    const colRef = collection(db, 'families', familyId, 'fds');
+    
+    const unsubscribe = onSnapshot(colRef, (snapshot) => {
+      const fdData = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+        createdAt: doc.data().createdAt?.toDate() || new Date(),
+        updatedAt: doc.data().updatedAt?.toDate() || new Date()
+      }));
+      setFds(fdData);
+      setLoading(false);
+    }, (err) => {
+      console.error("Error fetching FDs:", err);
+      setError(err);
+      setLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, [familyId]);
 
   const addFd = async (fdData) => {
-    const newFd = { 
-      ...fdData, 
-      id: Date.now().toString(),
-      createdBy: 'Family Admin',
-      updatedBy: 'Family Admin',
-      createdAt: new Date(),
-      updatedAt: new Date()
-    };
-    setFds(prev => [newFd, ...prev]);
+    try {
+      const colRef = collection(db, 'families', familyId, 'fds');
+      await addDoc(colRef, {
+        ...fdData,
+        createdBy: userProfile.name,
+        updatedBy: userProfile.name,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp()
+      });
+    } catch (err) {
+      console.error("Error adding FD:", err);
+      throw err;
+    }
   };
 
   const updateFd = async (fdId, updates) => {
-    setFds(prev => prev.map(fd => fd.id === fdId ? { ...fd, ...updates, updatedAt: new Date() } : fd));
+    try {
+      const docRef = doc(db, 'families', familyId, 'fds', fdId);
+      await updateDoc(docRef, {
+        ...updates,
+        updatedBy: userProfile.name,
+        updatedAt: serverTimestamp()
+      });
+    } catch (err) {
+      console.error("Error updating FD:", err);
+      throw err;
+    }
   };
 
   const deleteFd = async (fdId) => {
-    setFds(prev => prev.filter(fd => fd.id !== fdId));
+    try {
+      const docRef = doc(db, 'families', familyId, 'fds', fdId);
+      await deleteDoc(docRef);
+    } catch (err) {
+      console.error("Error deleting FD:", err);
+      throw err;
+    }
   };
 
   return { fds, loading, error, addFd, updateFd, deleteFd };
