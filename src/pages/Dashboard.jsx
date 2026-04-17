@@ -123,12 +123,12 @@ const Dashboard = () => {
           <div className="space-y-4">
             {allActivities.length > 0 ? allActivities.map((act, i) => (
               <div key={i} className="flex items-start gap-4">
-                <div className={`w-8 h-8 rounded-full ${act.color} flex items-center justify-center font-bold text-xs`}>
+                <div className={`w-8 h-8 rounded-full ${act.color} flex items-center justify-center font-bold text-xs uppercase text-white shadow-lg`}>
                   {act.member?.charAt(0) || act.updatedBy?.charAt(0) || '?'}
                 </div>
                 <div>
                   <p className="text-sm">
-                    <span className="font-semibold text-slate-200">{act.updatedBy || act.member || 'Someone'}</span> {act.action} <span className="text-indigo-400">{act.itemName}</span>
+                    <span className="font-semibold text-slate-200">{act.member || act.updatedBy || 'Someone'}</span> {act.action} <span className="text-indigo-400">{act.itemName}</span>
                   </p>
                   <p className="text-xs text-slate-500">
                     {act.updatedAt?.toDate 
