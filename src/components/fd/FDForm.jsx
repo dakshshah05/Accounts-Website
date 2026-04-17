@@ -81,6 +81,7 @@ const FDForm = ({ initialData, onSubmit, onCancel }) => {
             name="principal"
             required
             min="0"
+            step="0.01"
             value={formData.principal} 
             onChange={handleChange}
             placeholder="10000"
@@ -109,7 +110,8 @@ const FDForm = ({ initialData, onSubmit, onCancel }) => {
             type="number" 
             name="tenure"
             required
-            min="1"
+            min="0"
+            step="any"
             value={formData.tenure} 
             onChange={handleChange}
             placeholder="12"
