@@ -1,8 +1,11 @@
 import React, { useState } from 'react';
+import { useMembers } from '../../hooks/useMembers';
 
 const PasswordForm = ({ initialData, onSubmit, onCancel }) => {
+  const { members } = useMembers();
+
   const [formData, setFormData] = useState({
-    member: initialData?.member || 'Papa',
+    member: initialData?.member || '',
     category: initialData?.category || 'Banking',
     service: initialData?.service || '',
     url: initialData?.url || '',
@@ -12,7 +15,6 @@ const PasswordForm = ({ initialData, onSubmit, onCancel }) => {
   });
 
   const categories = ['Banking', 'Social Media', 'Email', 'Government', 'Subscriptions', 'Other'];
-  const members = ['Papa', 'Mummy', 'Daksh'];
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -41,14 +43,19 @@ const PasswordForm = ({ initialData, onSubmit, onCancel }) => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <label className="block text-sm font-medium text-slate-300 mb-1">Family Member</label>
-          <select 
+          <input 
+            type="text"
             name="member" 
+            list="member-list-pwds"
+            required
+            placeholder="Type or select name"
             value={formData.member} 
             onChange={handleChange}
-            className="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-2.5 text-slate-100 focus:outline-none focus:border-indigo-500 transition-colors appearance-none"
-          >
-            {members.map(m => <option key={m}>{m}</option>)}
-          </select>
+            className="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-2.5 text-slate-100 focus:outline-none focus:border-indigo-500 transition-colors"
+          />
+          <datalist id="member-list-pwds">
+            {members.map(m => <option key={m.id} value={m.name} />)}
+          </datalist>
         </div>
         
         <div>

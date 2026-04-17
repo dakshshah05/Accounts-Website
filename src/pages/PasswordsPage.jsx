@@ -3,13 +3,16 @@ import PasswordCard from '../components/passwords/PasswordCard';
 import PasswordForm from '../components/passwords/PasswordForm';
 import Modal from '../components/shared/Modal';
 import EmptyState from '../components/shared/EmptyState';
+import MemberFilterTabs from '../components/shared/MemberFilterTabs';
 import { KeyRound, Plus, Shield } from 'lucide-react';
 import { useFamilyData } from '../context/FamilyDataContext';
 import { usePasswords } from '../hooks/usePasswords';
+import { useMembers } from '../hooks/useMembers';
 
 const PasswordsPage = () => {
   const { state } = useFamilyData();
   const { passwords, addPassword, updatePassword, deletePassword } = usePasswords();
+  const { members, addMember } = useMembers();
   
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingPwd, setEditingPwd] = useState(null);
@@ -27,6 +30,11 @@ const PasswordsPage = () => {
   const handleSubmit = async (formData) => {
     if (editingPwd) await updatePassword(editingPwd.id, formData);
     else await addPassword(formData);
+
+    if (formData.member && !members.some(m => m.name.toLowerCase() === formData.member.toLowerCase())) {
+      await addMember({ name: formData.member, role: 'member' });
+    }
+
     handleCloseModal();
   };
 
@@ -35,6 +43,10 @@ const PasswordsPage = () => {
       await deletePassword(pwd.id);
     }
   };
+
+  const processedPwd = passwords.filter(pwd => 
+    state.memberFilter === 'All' || pwd.member === state.memberFilter
+  );
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
@@ -56,9 +68,14 @@ const PasswordsPage = () => {
         <div>This is a seamless mock state layout interface. Features are fully interactive locally.</div>
       </div>
 
-      {passwords.length > 0 ? (
+      {/* Filters */}
+      <div className="pt-2">
+        <MemberFilterTabs />
+      </div>
+
+      {processedPwd.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
-          {passwords.map(pwd => (
+          {processedPwd.map(pwd => (
             <div key={pwd.id} className="relative group">
               <PasswordCard pwd={pwd} />
               <div className="absolute top-4 right-4 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity z-20">

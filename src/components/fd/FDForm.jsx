@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { calculateMaturity } from '../../utils/calculateMaturity';
+import { useMembers } from '../../hooks/useMembers';
 
 const FDForm = ({ initialData, onSubmit, onCancel }) => {
+  const { members } = useMembers();
+
   const [formData, setFormData] = useState({
-    member: initialData?.member || 'Papa',
+    member: initialData?.member || '',
     bank: initialData?.bank || '',
     accountNumber: initialData?.accountNumber || '',
     principal: initialData?.principal || '',
@@ -51,16 +54,19 @@ const FDForm = ({ initialData, onSubmit, onCancel }) => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <label className="block text-sm font-medium text-slate-300 mb-1">Family Member</label>
-          <select 
+          <input 
+            type="text"
             name="member" 
+            list="member-list-fds"
+            required
+            placeholder="Type or select name"
             value={formData.member} 
             onChange={handleChange}
-            className="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-2.5 text-slate-100 focus:outline-none focus:border-indigo-500 transition-colors appearance-none"
-          >
-            <option>Papa</option>
-            <option>Mummy</option>
-            <option>Daksh</option>
-          </select>
+            className="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-2.5 text-slate-100 focus:outline-none focus:border-indigo-500 transition-colors"
+          />
+          <datalist id="member-list-fds">
+            {members.map(m => <option key={m.id} value={m.name} />)}
+          </datalist>
         </div>
         
         <div>

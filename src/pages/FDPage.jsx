@@ -1,14 +1,17 @@
 import React, { useState } from 'react';
 import { useFDs } from '../hooks/useFDs';
+import { useMembers } from '../hooks/useMembers';
 import FDCard from '../components/fd/FDCard';
 import FDForm from '../components/fd/FDForm';
 import Modal from '../components/shared/Modal';
 import EmptyState from '../components/shared/EmptyState';
+import MemberFilterTabs from '../components/shared/MemberFilterTabs';
 import { Landmark, Plus, Search, Filter } from 'lucide-react';
 import { useFamilyData } from '../context/FamilyDataContext';
 
 const FDPage = () => {
   const { fds, addFd, updateFd, deleteFd, loading } = useFDs();
+  const { members, addMember } = useMembers();
   const { state, dispatch } = useFamilyData();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingFd, setEditingFd] = useState(null);
@@ -19,8 +22,8 @@ const FDPage = () => {
   // Filter and Sort Logic
   let processedFds = [...allFds];
   
-  if (state.fdFilter !== 'All') {
-    processedFds = processedFds.filter(fd => fd.member === state.fdFilter);
+  if (state.memberFilter !== 'All') {
+    processedFds = processedFds.filter(fd => fd.member === state.memberFilter);
   }
   
   if (state.searchQuery) {
@@ -58,6 +61,11 @@ const FDPage = () => {
         if (fds?.length > 0) await addFd(formData);
         else setLocalFds(prev => [{ ...formData, id: Date.now().toString() }, ...prev]);
       }
+
+      if (formData.member && members && !members.some(m => m.name.toLowerCase() === formData.member.toLowerCase())) {
+        await addMember({ name: formData.member, role: 'member' });
+      }
+
       handleCloseModal();
     } catch (err) {
       alert("Error saving FD. If using mock, this will work locally.");
@@ -111,21 +119,7 @@ const FDPage = () => {
 
       {/* Tabs / Filters */}
       <div className="flex items-center justify-between overflow-x-auto pb-2 scrollbar-hide">
-        <div className="flex gap-2">
-          {['All', 'Papa', 'Mummy', 'Daksh'].map(tab => (
-            <button
-              key={tab}
-              onClick={() => dispatch({ type: 'SET_FD_FILTER', payload: tab })}
-              className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all whitespace-nowrap ${
-                state.fdFilter === tab 
-                  ? 'bg-white text-slate-900 shadow-md' 
-                  : 'bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-slate-200 border border-white/5'
-              }`}
-            >
-              {tab}
-            </button>
-          ))}
-        </div>
+        <MemberFilterTabs />
         
         <div className="flex items-center gap-2">
           <Filter size={14} className="text-slate-500" />

@@ -3,13 +3,16 @@ import DocumentCard from '../components/documents/DocumentCard';
 import DocumentForm from '../components/documents/DocumentForm';
 import Modal from '../components/shared/Modal';
 import EmptyState from '../components/shared/EmptyState';
+import MemberFilterTabs from '../components/shared/MemberFilterTabs';
 import { FileText, UploadCloud } from 'lucide-react';
 import { useFamilyData } from '../context/FamilyDataContext';
 import { useDocuments } from '../hooks/useDocuments';
+import { useMembers } from '../hooks/useMembers';
 
 const DocumentsPage = () => {
   const { state } = useFamilyData();
   const { documents, addDocument, updateDocument, deleteDocument } = useDocuments();
+  const { members, addMember } = useMembers(); // NEW!
   
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingDoc, setEditingDoc] = useState(null);
@@ -27,6 +30,12 @@ const DocumentsPage = () => {
   const handleSubmit = async (formData) => {
     if (editingDoc) await updateDocument(editingDoc.id, formData);
     else await addDocument(formData);
+
+    // Auto-create member if they manually typed a new one organically
+    if (formData.member && !members.some(m => m.name.toLowerCase() === formData.member.toLowerCase())) {
+      await addMember({ name: formData.member, role: 'member' });
+    }
+
     handleCloseModal();
   };
 
@@ -35,6 +44,10 @@ const DocumentsPage = () => {
       await deleteDocument(doc.id);
     }
   };
+
+  const processedDocs = documents.filter(doc => 
+    state.memberFilter === 'All' || doc.member === state.memberFilter
+  );
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
@@ -51,9 +64,14 @@ const DocumentsPage = () => {
         </button>
       </div>
 
-      {documents.length > 0 ? (
+      {/* Filters */}
+      <div className="pt-2">
+        <MemberFilterTabs />
+      </div>
+
+      {processedDocs.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
-          {documents.map(doc => (
+          {processedDocs.map(doc => (
             <div key={doc.id} className="relative group">
               <DocumentCard doc={doc} />
               {/* Optional inline generic edit/del actions for the mockup */}
