@@ -64,8 +64,12 @@ const Sidebar = () => {
                   : "text-slate-400 hover:bg-white/5 hover:text-slate-200"
               )}
             >
-              <item.icon size={20} className={({ isActive }) => isActive ? "text-indigo-400" : ""} />
-              {item.name}
+              {({ isActive }) => (
+                <>
+                  <item.icon size={20} className={isActive ? "text-indigo-400" : ""} />
+                  {item.name}
+                </>
+              )}
             </NavLink>
           ))}
         </nav>
