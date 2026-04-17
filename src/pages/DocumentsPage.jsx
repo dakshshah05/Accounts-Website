@@ -8,6 +8,8 @@ import { FileText, UploadCloud } from 'lucide-react';
 import { useFamilyData } from '../context/FamilyDataContext';
 import { useDocuments } from '../hooks/useDocuments';
 import { useMembers } from '../hooks/useMembers';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { storage } from '../services/firebase';
 
 const DocumentsPage = () => {
   const { state } = useFamilyData();
@@ -29,16 +31,25 @@ const DocumentsPage = () => {
 
   const handleSubmit = async (formData) => {
     try {
-      if (editingDoc) await updateDocument(editingDoc.id, formData);
-      else await addDocument(formData);
-
-      if (formData.member && !members.some(m => m.name.toLowerCase() === formData.member.toLowerCase())) {
-        await addMember({ name: formData.member, role: 'member' });
+      let finalFileUrl = formData.fileUrl;
+      const { rawFile, fileUrl, ...firestoreData } = formData;
+      
+      // If there's a new raw file, upload to Firebase Storage
+      if (rawFile) {
+         const storageRef = ref(storage, `documents/${Date.now()}_${rawFile.name}`);
+         const snapshot = await uploadBytes(storageRef, rawFile);
+         finalFileUrl = await getDownloadURL(snapshot.ref);
       }
+
+      firestoreData.fileUrl = finalFileUrl; // Override locally-generated string
+
+      if (editingDoc) await updateDocument(editingDoc.id, firestoreData);
+      else await addDocument(firestoreData);
+
       handleCloseModal();
     } catch (err) {
       console.error(err);
-      alert("Error saving Document! Check Firebase Database Rules.");
+      alert("Error saving Document! Check Firebase Database/Storage Rules.");
     }
   };
 
@@ -80,12 +91,7 @@ const DocumentsPage = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
           {processedDocs.map(doc => (
             <div key={doc.id} className="relative group">
-              <DocumentCard doc={doc} />
-              {/* Optional inline generic edit/del actions for the mockup */}
-              <div className="absolute top-4 right-4 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity z-20">
-                <button onClick={() => handleOpenModal(doc)} className="bg-slate-800 border border-white/10 text-white p-1.5 rounded-lg hover:bg-slate-700 text-xs">Edit</button>
-                <button onClick={() => handleDelete(doc)} className="bg-red-500/20 border border-red-500/30 text-red-400 p-1.5 rounded-lg hover:bg-red-500/40 text-xs">Del</button>
-              </div>
+              <DocumentCard doc={doc} onEdit={handleOpenModal} onDelete={handleDelete} />
             </div>
           ))}
         </div>

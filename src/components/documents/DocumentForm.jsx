@@ -25,9 +25,12 @@ const DocumentForm = ({ initialData, onSubmit, onCancel }) => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
+  const [fileToUpload, setFileToUpload] = useState(null);
+
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
+      setFileToUpload(file);
       setFileName(file.name);
       setFileUrl(URL.createObjectURL(file)); 
     }
@@ -35,7 +38,7 @@ const DocumentForm = ({ initialData, onSubmit, onCancel }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSubmit({ ...formData, fileUrl, fileName });
+    onSubmit({ ...formData, fileUrl, fileName, rawFile: fileToUpload });
   };
 
   return (

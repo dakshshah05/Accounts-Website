@@ -2,7 +2,7 @@ import React from 'react';
 import { FileText, Download, Eye, CalendarClock } from 'lucide-react';
 import Badge from '../shared/Badge';
 
-const DocumentCard = ({ doc }) => {
+const DocumentCard = ({ doc, onEdit, onDelete }) => {
   const isExpiringSoon = false; // Mock logic
   const isExpired = false;
 
@@ -22,13 +22,32 @@ const DocumentCard = ({ doc }) => {
         
         <div className="flex flex-col items-end gap-2">
           <Badge variant="primary" className="text-[10px] uppercase tracking-wider">{doc.member}</Badge>
-          <div className="opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
-            <button className="p-1.5 text-slate-400 hover:text-indigo-400 hover:bg-white/5 rounded-md transition-colors" title="View">
-              <Eye size={16} />
-            </button>
-            <button className="p-1.5 text-slate-400 hover:text-indigo-400 hover:bg-white/5 rounded-md transition-colors" title="Download">
-              <Download size={16} />
-            </button>
+          <div className="flex gap-1 bg-slate-800/80 backdrop-blur rounded-lg border border-white/10 p-1">
+            {doc.fileUrl && (
+              <>
+                <button onClick={() => window.open(doc.fileUrl, '_blank')} className="p-1.5 text-slate-400 hover:text-indigo-400 hover:bg-white/5 rounded-md transition-colors" title="View">
+                  <Eye size={16} />
+                </button>
+                <button onClick={() => {
+                  const a = document.createElement('a');
+                  a.href = doc.fileUrl;
+                  a.download = doc.fileName || 'document';
+                  a.click();
+                }} className="p-1.5 text-slate-400 hover:text-indigo-400 hover:bg-white/5 rounded-md transition-colors" title="Download">
+                  <Download size={16} />
+                </button>
+              </>
+            )}
+            {onEdit && (
+              <button onClick={() => onEdit(doc)} className="p-1.5 text-slate-400 hover:text-indigo-400 hover:bg-white/5 rounded-md transition-colors" title="Edit">
+                <span className="text-xs font-semibold px-1">Edit</span>
+              </button>
+            )}
+            {onDelete && (
+              <button onClick={() => onDelete(doc)} className="p-1.5 text-slate-400 hover:text-red-400 hover:bg-white/5 rounded-md transition-colors" title="Delete">
+                <span className="text-xs font-semibold px-1">Del</span>
+              </button>
+            )}
           </div>
         </div>
       </div>
