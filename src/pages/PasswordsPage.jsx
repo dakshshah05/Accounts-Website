@@ -1,23 +1,40 @@
 import React, { useState } from 'react';
 import PasswordCard from '../components/passwords/PasswordCard';
+import PasswordForm from '../components/passwords/PasswordForm';
+import Modal from '../components/shared/Modal';
 import EmptyState from '../components/shared/EmptyState';
-import { KeyRound, Plus, Lock, Shield } from 'lucide-react';
+import { KeyRound, Plus, Shield } from 'lucide-react';
 import { useFamilyData } from '../context/FamilyDataContext';
+import { usePasswords } from '../hooks/usePasswords';
 
 const PasswordsPage = () => {
   const { state } = useFamilyData();
+  const { passwords, addPassword, updatePassword, deletePassword } = usePasswords();
   
-  // Mock Data since we are skipping full form for brevity
-  const [passwords] = useState([
-    {
-      id: '1', member: 'Papa', category: 'Banking', service: 'HDFC NetBanking', 
-      url: 'https://netbanking.hdfcbank.com', username: 'cust123456', password: 'SecretPassword123'
-    },
-    {
-      id: '2', member: 'Daksh', category: 'Social Media', service: 'Instagram', 
-      url: 'https://instagram.com', username: 'daksh_ig', password: 'InstaPass!@#'
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingPwd, setEditingPwd] = useState(null);
+
+  const handleOpenModal = (pwd = null) => {
+    setEditingPwd(pwd);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setEditingPwd(null);
+    setIsModalOpen(false);
+  };
+
+  const handleSubmit = async (formData) => {
+    if (editingPwd) await updatePassword(editingPwd.id, formData);
+    else await addPassword(formData);
+    handleCloseModal();
+  };
+
+  const handleDelete = async (pwd) => {
+    if (window.confirm("Are you sure you want to delete this password?")) {
+      await deletePassword(pwd.id);
     }
-  ]);
+  };
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto opacity-0 animate-in fade-in zoom-in-95 duration-500 fill-mode-forwards">
@@ -29,18 +46,42 @@ const PasswordsPage = () => {
           <p className="text-slate-400 text-sm mt-1">End-to-end security for shared family credentials.</p>
         </div>
 
-        <button className="flex items-center gap-2 bg-indigo-500 hover:bg-indigo-600 text-white px-4 py-2 rounded-xl text-sm font-medium transition-colors shadow-lg shadow-indigo-500/25 w-fit">
+        <button onClick={() => handleOpenModal()} className="flex items-center gap-2 bg-indigo-500 hover:bg-indigo-600 text-white px-4 py-2 rounded-xl text-sm font-medium transition-colors shadow-lg shadow-indigo-500/25 w-fit">
           <Plus size={16} /> New Password
         </button>
       </div>
 
       <div className="bg-amber-500/10 border border-amber-500/20 text-amber-200 p-3 rounded-xl flex items-center gap-2 text-sm">
-        <Shield size={16} className="text-amber-500" /> This is a mockup interface. In production, passwords should be encrypted client-side using CryptoJS before storing.
+        <Shield size={16} className="text-amber-500 flex-shrink-0" /> 
+        <div>This is a seamless mock state layout interface. Features are fully interactive locally.</div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
-        {passwords.map(pwd => <PasswordCard key={pwd.id} pwd={pwd} />)}
-      </div>
+      {passwords.length > 0 ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
+          {passwords.map(pwd => (
+            <div key={pwd.id} className="relative group">
+              <PasswordCard pwd={pwd} />
+              <div className="absolute top-4 right-4 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity z-20">
+                <button onClick={() => handleOpenModal(pwd)} className="bg-slate-800 border border-white/10 text-white p-1.5 rounded-lg hover:bg-slate-700">Edit</button>
+                <button onClick={() => handleDelete(pwd)} className="bg-red-500/20 border border-red-500/30 text-red-400 p-1.5 rounded-lg hover:bg-red-500/40">Del</button>
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <EmptyState 
+          icon={KeyRound}
+          title="No Passwords Saved"
+          description="Your vault is currently empty. Add sensitive credentials directly."
+          action={
+            <button onClick={() => handleOpenModal()} className="mt-4 text-indigo-400 hover:text-indigo-300 font-medium">+ File a new Password</button>
+          }
+        />
+      )}
+
+      <Modal isOpen={isModalOpen} onClose={handleCloseModal} title={editingPwd ? "Edit Vault Password" : "New Vault Password"}>
+        <PasswordForm initialData={editingPwd} onSubmit={handleSubmit} onCancel={handleCloseModal} />
+      </Modal>
     </div>
   );
 };
