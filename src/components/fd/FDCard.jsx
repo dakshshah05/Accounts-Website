@@ -2,6 +2,7 @@ import React from 'react';
 import { Pencil, Trash2, Landmark, ShieldAlert } from 'lucide-react';
 import { formatCurrency } from '../../utils/formatCurrency';
 import Badge from '../shared/Badge';
+import clsx from 'clsx';
 
 const FDCard = ({ fd, onEdit, onDelete }) => {
   // Determine status

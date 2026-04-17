@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from 'react';
-import { calculateMaturity } from '../../utils/calculateMaturity';
+import React, { useState } from 'react';
 import { useMembers } from '../../hooks/useMembers';
 
 const FDForm = ({ initialData, onSubmit, onCancel }) => {
@@ -13,31 +12,12 @@ const FDForm = ({ initialData, onSubmit, onCancel }) => {
     rate: initialData?.rate || '',
     frequency: initialData?.frequency || 'Yearly',
     type: initialData?.type || 'Cumulative',
-    startDate: initialData?.startDate || new Date().toISOString().split('T')[0],
     tenure: initialData?.tenure || '',
     nomination: initialData?.nomination || '',
     notes: initialData?.notes || '',
     maturityAmount: initialData?.maturityAmount || '',
     maturityDate: initialData?.maturityDate || ''
   });
-
-  // Auto calculate
-  useEffect(() => {
-    if (formData.principal && formData.rate && formData.tenure && formData.startDate) {
-      const { amount, date } = calculateMaturity(
-        formData.principal, 
-        formData.rate, 
-        formData.tenure, 
-        formData.startDate, 
-        formData.frequency
-      );
-      setFormData(prev => ({
-        ...prev,
-        maturityAmount: amount,
-        maturityDate: date
-      }));
-    }
-  }, [formData.principal, formData.rate, formData.tenure, formData.startDate, formData.frequency]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -138,18 +118,6 @@ const FDForm = ({ initialData, onSubmit, onCancel }) => {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-slate-300 mb-1">Start Date</label>
-          <input 
-            type="date" 
-            name="startDate"
-            required
-            value={formData.startDate} 
-            onChange={handleChange}
-            className="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-2.5 text-slate-100 focus:outline-none focus:border-indigo-500 transition-colors"
-          />
-        </div>
-
-        <div>
           <label className="block text-sm font-medium text-slate-300 mb-1">Compounding</label>
           <select 
             name="frequency" 
@@ -163,21 +131,32 @@ const FDForm = ({ initialData, onSubmit, onCancel }) => {
             <option>Yearly</option>
           </select>
         </div>
-      </div>
 
-      {/* Auto-calculated preview box */}
-      <div className="bg-indigo-500/10 border border-indigo-500/20 rounded-xl p-4 flex justify-between items-center">
         <div>
-          <div className="text-sm font-medium text-indigo-300">Expected Maturity</div>
-          <div className="text-xs text-indigo-500/70">Calculated automatically</div>
+          <label className="block text-sm font-medium text-amber-300/80 mb-1">Maturity Date (Manual)</label>
+          <input 
+            type="date" 
+            name="maturityDate"
+            required
+            value={formData.maturityDate} 
+            onChange={handleChange}
+            className="w-full bg-slate-900 border border-amber-500/30 rounded-xl px-4 py-2.5 text-slate-100 focus:outline-none focus:border-amber-500 transition-colors"
+          />
         </div>
-        <div className="text-right">
-          <div className="text-xl font-bold text-indigo-400">
-            ₹{Number(formData.maturityAmount || 0).toLocaleString('en-IN', { maximumFractionDigits: 0 })}
-          </div>
-          <div className="text-xs text-indigo-300">
-            on {formData.maturityDate ? new Date(formData.maturityDate).toLocaleDateString() : '---'}
-          </div>
+        
+        <div className="md:col-span-2">
+          <label className="block text-sm font-medium text-amber-300/80 mb-1">Maturity Amount (Manual)</label>
+          <input 
+            type="number" 
+            name="maturityAmount"
+            required
+            min="0"
+            step="0.01"
+            value={formData.maturityAmount} 
+            onChange={handleChange}
+            placeholder="Enter exact maturity value"
+            className="w-full bg-slate-900 border border-amber-500/30 rounded-xl px-4 py-2.5 text-slate-100 focus:outline-none focus:border-amber-500 transition-colors"
+          />
         </div>
       </div>
 
