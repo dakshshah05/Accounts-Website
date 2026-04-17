@@ -2,7 +2,7 @@ import React from 'react';
 import { FileText, Download, Eye, CalendarClock } from 'lucide-react';
 import Badge from '../shared/Badge';
 
-const DocumentCard = ({ doc, onEdit, onDelete }) => {
+const DocumentCard = ({ doc, onEdit, onDelete, onView }) => {
   const isExpiringSoon = false; // Mock logic
   const isExpired = false;
 
@@ -25,7 +25,7 @@ const DocumentCard = ({ doc, onEdit, onDelete }) => {
           <div className="flex gap-1 bg-slate-800/80 backdrop-blur rounded-lg border border-white/10 p-1">
             {doc.fileUrl && (
               <>
-                <button onClick={() => window.open(doc.fileUrl, '_blank')} className="p-1.5 text-slate-400 hover:text-indigo-400 hover:bg-white/5 rounded-md transition-colors" title="View">
+                <button onClick={onView} className="p-1.5 text-slate-400 hover:text-indigo-400 hover:bg-white/5 rounded-md transition-colors" title="View">
                   <Eye size={16} />
                 </button>
                 <button onClick={() => {

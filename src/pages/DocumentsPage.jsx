@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import DocumentCard from '../components/documents/DocumentCard';
 import DocumentForm from '../components/documents/DocumentForm';
+import DocumentViewer from '../components/documents/DocumentViewer';
 import Modal from '../components/shared/Modal';
 import EmptyState from '../components/shared/EmptyState';
 import MemberFilterTabs from '../components/shared/MemberFilterTabs';
@@ -15,7 +16,9 @@ const DocumentsPage = () => {
   const { members } = useMembers();
   
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isViewerOpen, setIsViewerOpen] = useState(false);
   const [editingDoc, setEditingDoc] = useState(null);
+  const [viewingDoc, setViewingDoc] = useState(null);
 
   const handleOpenModal = (doc = null) => {
     setEditingDoc(doc);
@@ -25,6 +28,11 @@ const DocumentsPage = () => {
   const handleCloseModal = () => {
     setEditingDoc(null);
     setIsModalOpen(false);
+  };
+
+  const handleView = (doc) => {
+    setViewingDoc(doc);
+    setIsViewerOpen(true);
   };
 
   const handleSubmit = async (formData) => {
@@ -77,7 +85,12 @@ const DocumentsPage = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
           {processedDocs.map(doc => (
             <div key={doc.id} className="relative group">
-              <DocumentCard doc={doc} onEdit={handleOpenModal} onDelete={handleDelete} />
+              <DocumentCard 
+                doc={doc} 
+                onEdit={handleOpenModal} 
+                onDelete={handleDelete} 
+                onView={() => handleView(doc)}
+              />
             </div>
           ))}
         </div>
@@ -93,6 +106,12 @@ const DocumentsPage = () => {
       <Modal isOpen={isModalOpen} onClose={handleCloseModal} title={editingDoc ? "Edit Document" : "Upload Document"}>
         <DocumentForm initialData={editingDoc} onSubmit={handleSubmit} onCancel={handleCloseModal} />
       </Modal>
+
+      <DocumentViewer 
+        isOpen={isViewerOpen} 
+        onClose={() => setIsViewerOpen(false)} 
+        doc={viewingDoc} 
+      />
     </div>
   );
 };
