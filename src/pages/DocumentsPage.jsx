@@ -8,13 +8,11 @@ import { FileText, UploadCloud } from 'lucide-react';
 import { useFamilyData } from '../context/FamilyDataContext';
 import { useDocuments } from '../hooks/useDocuments';
 import { useMembers } from '../hooks/useMembers';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { storage } from '../services/firebase';
 
 const DocumentsPage = () => {
   const { state } = useFamilyData();
   const { documents, addDocument, updateDocument, deleteDocument } = useDocuments();
-  const { members, addMember } = useMembers(); // NEW!
+  const { members } = useMembers();
   
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingDoc, setEditingDoc] = useState(null);
@@ -31,25 +29,13 @@ const DocumentsPage = () => {
 
   const handleSubmit = async (formData) => {
     try {
-      let finalFileUrl = formData.fileUrl;
-      const { rawFile, fileUrl, ...firestoreData } = formData;
-      
-      // If there's a new raw file, upload to Firebase Storage
-      if (rawFile) {
-         const storageRef = ref(storage, `documents/${Date.now()}_${rawFile.name}`);
-         const snapshot = await uploadBytes(storageRef, rawFile);
-         finalFileUrl = await getDownloadURL(snapshot.ref);
-      }
-
-      firestoreData.fileUrl = finalFileUrl; // Override locally-generated string
-
-      if (editingDoc) await updateDocument(editingDoc.id, firestoreData);
-      else await addDocument(firestoreData);
+      if (editingDoc) await updateDocument(editingDoc.id, formData);
+      else await addDocument(formData);
 
       handleCloseModal();
     } catch (err) {
       console.error(err);
-      alert("Error saving Document! Check Firebase Database/Storage Rules.");
+      alert("Error saving Document! Ensure the file size is small.");
     }
   };
 

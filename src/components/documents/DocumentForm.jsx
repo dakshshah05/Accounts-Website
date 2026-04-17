@@ -16,7 +16,7 @@ const DocumentForm = ({ initialData, onSubmit, onCancel }) => {
   });
   
   const [fileUrl, setFileUrl] = useState(initialData?.fileUrl || null);
-  const [fileName, setFileName] = useState("");
+  const [fileName, setFileName] = useState(initialData?.fileName || "");
 
   const docTypes = ['Identity', 'Banking', 'Insurance', 'Property', 'Medical', 'Education', 'Other'];
 
@@ -25,20 +25,26 @@ const DocumentForm = ({ initialData, onSubmit, onCancel }) => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const [fileToUpload, setFileToUpload] = useState(null);
-
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      setFileToUpload(file);
-      setFileName(file.name);
-      setFileUrl(URL.createObjectURL(file)); 
+      if (file.size > 1024 * 1024) {
+        alert("File is too large! For the free plan, please keep files under 1MB (compress the image if needed).");
+        return;
+      }
+      
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setFileUrl(reader.result); // Base64 string
+        setFileName(file.name);
+      };
+      reader.readAsDataURL(file);
     }
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSubmit({ ...formData, fileUrl, fileName, rawFile: fileToUpload });
+    onSubmit({ ...formData, fileUrl, fileName });
   };
 
   return (
