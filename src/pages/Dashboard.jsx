@@ -3,6 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import { useFDs } from '../hooks/useFDs';
 import { usePasswords } from '../hooks/usePasswords';
 import { useDocuments } from '../hooks/useDocuments';
+import { useMembers } from '../hooks/useMembers';
 import { Landmark, KeyRound, FileText, AlertTriangle, Clock } from 'lucide-react';
 import { formatCurrency } from '../utils/formatCurrency';
 
@@ -13,10 +14,17 @@ const Dashboard = () => {
   const { fds, loading: loadingFds } = useFDs();
   const { passwords, loading: loadingPwds } = usePasswords();
   const { documents, loading: loadingDocs } = useDocuments();
+  const { members } = useMembers();
 
-  // MOCK DATA for wow effect if firebase lists are empty and still loading or failed.
-  // In a generic scenario, if arrays are empty, we display empty states.
-  // We will assume real arrays for now.
+  const allActivities = [
+    ...(fds || []).map(item => ({ ...item, type: 'Fixed Deposit', action: 'added Fixed Deposit', itemName: item.bank, color: 'bg-emerald-500' })),
+    ...(passwords || []).map(item => ({ ...item, type: 'Password', action: 'updated password for', itemName: item.service, color: 'bg-indigo-500' })),
+    ...(documents || []).map(item => ({ ...item, type: 'Document', action: 'uploaded document', itemName: item.label, color: 'bg-amber-500' }))
+  ].sort((a, b) => {
+    const timeA = a.updatedAt?.toMillis ? a.updatedAt.toMillis() : new Date(a.updatedAt || 0).getTime();
+    const timeB = b.updatedAt?.toMillis ? b.updatedAt.toMillis() : new Date(b.updatedAt || 0).getTime();
+    return timeB - timeA;
+  }).slice(0, 5);
 
   const safeFds = fds || [];
   const totalFdValue = safeFds.reduce((acc, fd) => acc + Number(fd.principal || 0), 0);
@@ -112,29 +120,27 @@ const Dashboard = () => {
             <Clock size={20} className="text-indigo-400" />
             Recent Activity
           </h2>
-          {/* Mock Activity List */}
           <div className="space-y-4">
-            <div className="flex items-start gap-4">
-              <div className="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center font-bold text-xs">P</div>
-              <div>
-                <p className="text-sm"><span className="font-semibold text-slate-200">Papa</span> added a new Fixed Deposit <span className="text-indigo-400">HDFC Bank</span></p>
-                <p className="text-xs text-slate-500">2 hours ago</p>
+            {allActivities.length > 0 ? allActivities.map((act, i) => (
+              <div key={i} className="flex items-start gap-4">
+                <div className={`w-8 h-8 rounded-full ${act.color} flex items-center justify-center font-bold text-xs`}>
+                  {act.member?.charAt(0) || act.updatedBy?.charAt(0) || '?'}
+                </div>
+                <div>
+                  <p className="text-sm">
+                    <span className="font-semibold text-slate-200">{act.updatedBy || act.member || 'Someone'}</span> {act.action} <span className="text-indigo-400">{act.itemName}</span>
+                  </p>
+                  <p className="text-xs text-slate-500">
+                    {act.updatedAt?.toDate 
+                      ? act.updatedAt.toDate().toLocaleDateString(undefined, { month:'short', day:'numeric', year:'numeric'}) 
+                      : (act.updatedAt ? new Date(act.updatedAt).toLocaleDateString() : 'Recently')
+                    }
+                  </p>
+                </div>
               </div>
-            </div>
-            <div className="flex items-start gap-4">
-              <div className="w-8 h-8 rounded-full bg-indigo-500 flex items-center justify-center font-bold text-xs">D</div>
-              <div>
-                <p className="text-sm"><span className="font-semibold text-slate-200">Daksh</span> updated password for <span className="text-indigo-400">Netflix</span></p>
-                <p className="text-xs text-slate-500">Yesterday at 4:30 PM</p>
-              </div>
-            </div>
-            <div className="flex items-start gap-4">
-              <div className="w-8 h-8 rounded-full bg-amber-500 flex items-center justify-center font-bold text-xs">M</div>
-              <div>
-                <p className="text-sm"><span className="font-semibold text-slate-200">Mummy</span> uploaded document <span className="text-indigo-400">Aadhaar Card</span></p>
-                <p className="text-xs text-slate-500">2 days ago</p>
-              </div>
-            </div>
+            )) : (
+              <p className="text-sm text-slate-500">No recent activity found.</p>
+            )}
           </div>
         </div>
 
@@ -142,24 +148,24 @@ const Dashboard = () => {
         <div className="col-span-1 p-6 rounded-2xl bg-slate-800/80 border border-white/5 backdrop-blur-sm">
           <h2 className="text-xl font-semibold mb-4 text-slate-100">Family Members</h2>
           <div className="space-y-3">
-            {[
-              { name: 'Papa', role: 'admin', color: 'bg-emerald-500', online: true },
-              { name: 'Mummy', role: 'admin', color: 'bg-amber-500', online: false },
-              { name: 'Daksh', role: 'member', color: 'bg-indigo-500', online: true }
-            ].map((member, i) => (
-              <div key={i} className="flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-colors cursor-pointer border border-transparent hover:border-white/10">
+            {members && members.length > 0 ? members.map((member, i) => {
+              const bgColors = ['bg-emerald-500', 'bg-amber-500', 'bg-indigo-500', 'bg-red-500', 'bg-cyan-500', 'bg-pink-500'];
+              const color = bgColors[i % bgColors.length];
+              return (
+              <div key={member.id || i} className="flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 transition-colors cursor-pointer border border-transparent hover:border-white/10">
                 <div className="relative">
-                  <div className={`w-10 h-10 rounded-full ${member.color} flex items-center justify-center font-bold text-white shadow-lg`}>
-                    {member.name[0]}
+                  <div className={`w-10 h-10 rounded-full ${color} flex items-center justify-center font-bold text-white shadow-lg uppercase`}>
+                    {member.name.substring(0,2)}
                   </div>
-                  {member.online && <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-slate-800 rounded-full"></span>}
                 </div>
                 <div>
                   <div className="text-sm font-medium text-slate-200">{member.name}</div>
-                  <div className="text-xs text-slate-500 capitalize">{member.role}</div>
+                  <div className="text-xs text-slate-500 capitalize">{member.role || 'Member'}</div>
                 </div>
               </div>
-            ))}
+            )}) : (
+              <p className="text-sm text-slate-500">No members configured.</p>
+            )}
           </div>
         </div>
       </div>
