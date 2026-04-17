@@ -1,47 +1,25 @@
-import { useState, useEffect } from 'react';
-import { collection, onSnapshot, addDoc, updateDoc, deleteDoc, doc, serverTimestamp } from 'firebase/firestore';
-import { db } from '../services/firebase';
-import { useAuth } from '../context/AuthContext';
+import { useState } from 'react';
 
 export const usePasswords = () => {
-  const { familyId, userProfile } = useAuth();
   const [passwords, setPasswords] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    if (!familyId) { setLoading(false); return; }
-
-    const colRef = collection(db, 'families', familyId, 'passwords');
-    const unsubscribe = onSnapshot(colRef, (snapshot) => {
-      const data = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      }));
-      setPasswords(data);
-      setLoading(false);
-    });
-
-    return () => unsubscribe();
-  }, [familyId]);
+  const [loading] = useState(false);
 
   const addPassword = async (data) => {
-    await addDoc(collection(db, 'families', familyId, 'passwords'), {
+    const newPwd = {
       ...data,
-      updatedBy: userProfile.name,
-      updatedAt: serverTimestamp()
-    });
+      id: Date.now().toString(),
+      updatedBy: 'Family Admin',
+      updatedAt: new Date()
+    };
+    setPasswords(prev => [newPwd, ...prev]);
   };
 
   const updatePassword = async (id, data) => {
-    await updateDoc(doc(db, 'families', familyId, 'passwords', id), {
-      ...data,
-      updatedBy: userProfile.name,
-      updatedAt: serverTimestamp()
-    });
+    setPasswords(prev => prev.map(p => p.id === id ? { ...p, ...data, updatedAt: new Date() } : p));
   };
 
   const deletePassword = async (id) => {
-    await deleteDoc(doc(db, 'families', familyId, 'passwords', id));
+    setPasswords(prev => prev.filter(p => p.id !== id));
   };
 
   return { passwords, loading, addPassword, updatePassword, deletePassword };
