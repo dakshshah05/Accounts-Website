@@ -1,78 +1,29 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
-import { onAuthStateChanged, signInWithEmailAndPassword, signOut } from 'firebase/auth';
-import { auth, db } from '../services/firebase';
-import { doc, getDoc } from 'firebase/firestore';
+import React, { createContext, useContext, useState } from 'react';
 
 const AuthContext = createContext({});
 
 export const useAuth = () => useContext(AuthContext);
 
 export const AuthProvider = ({ children }) => {
-  const [currentUser, setCurrentUser] = useState(null);
-  const [userProfile, setUserProfile] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  // Example familyId - in a real app this would be tied to the authenticated user.
-  // We'll hardcode one for testing if not found.
-  const [familyId, setFamilyId] = useState('demo-family');
-
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      setCurrentUser(user);
-      if (user) {
-        // Fetch user profile from firestore
-        try {
-          const userDoc = await getDoc(doc(db, 'users', user.uid));
-          if (userDoc.exists()) {
-            const data = userDoc.data();
-            setUserProfile(data);
-            if (data.familyId) setFamilyId(data.familyId);
-          } else {
-            // Mock profile if none exists
-            setUserProfile({
-              name: user.email.split('@')[0],
-              role: 'admin',
-              color: 'bg-indigo-500'
-            });
-          }
-        } catch (e) {
-          console.error("Error fetching user profile", e);
-        }
-      } else {
-        setUserProfile(null);
-      }
-      setLoading(false);
-    });
-
-    return unsubscribe;
-  }, []);
-
-  const login = (email, password) => {
-    return signInWithEmailAndPassword(auth, email, password);
-  };
-
-  const logout = () => {
-    return signOut(auth);
-  };
-
-  // Skip actual auth in demo mode if firebase is not setup
-  const demoLogin = (name) => {
-    setCurrentUser({ uid: 'mock-uid', email: `${name}@demo.com` });
-    setUserProfile({ name, role: 'admin', color: 'bg-indigo-500' });
-  };
+  // Bypassing auth completely logic for an open website.
+  const [currentUser] = useState({ uid: 'open-user', email: `guest@demo.com` });
+  const [userProfile] = useState({ name: 'Family Admin', role: 'admin', color: 'bg-indigo-500' });
+  
+  // Set consistent demo family ID to fetch shared state locally or from firebase
+  const [familyId] = useState('demo-family');
 
   const value = {
     currentUser,
     userProfile,
     familyId,
-    login,
-    logout,
-    demoLogin
+    login: () => Promise.resolve(),
+    logout: () => Promise.resolve(),
+    demoLogin: () => Promise.resolve()
   };
 
   return (
     <AuthContext.Provider value={value}>
-      {!loading && children}
+      {children}
     </AuthContext.Provider>
   );
 };
