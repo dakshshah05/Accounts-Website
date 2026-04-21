@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 const MemberForm = ({ initialData, onSubmit, onCancel }) => {
   const [formData, setFormData] = useState({
     name: initialData?.name || '',
+    password: initialData?.password || '',
     role: initialData?.role || 'member',
   });
 
@@ -28,6 +29,19 @@ const MemberForm = ({ initialData, onSubmit, onCancel }) => {
             value={formData.name} 
             onChange={handleChange}
             placeholder="e.g. Rahul, Pooja"
+            className="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-2.5 text-slate-100 focus:outline-none focus:border-indigo-500 transition-colors"
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-slate-300 mb-1">Member Password</label>
+          <input 
+            type="text" 
+            name="password"
+            required
+            value={formData.password} 
+            onChange={handleChange}
+            placeholder="Password for this member to login"
             className="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-2.5 text-slate-100 focus:outline-none focus:border-indigo-500 transition-colors"
           />
         </div>
