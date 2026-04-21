@@ -26,9 +26,24 @@ export const AuthProvider = ({ children }) => {
 
   // Listen for tab switch, app backgrounding, or device lock
   useEffect(() => {
+    // 15 seconds grace period for brief tab switching or minimizing
+    const GRACE_PERIOD_MS = 15000; 
+    
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'hidden') {
-        logout();
+        // Record the exact absolute time they left the app
+        localStorage.setItem('familyVaultHiddenAt', Date.now().toString());
+      } else {
+        // They returned. Check how long they were gone.
+        const hiddenAt = localStorage.getItem('familyVaultHiddenAt');
+        if (hiddenAt) {
+          const timeAway = Date.now() - parseInt(hiddenAt, 10);
+          if (timeAway > GRACE_PERIOD_MS) {
+            // If they locked their phone or completely left the app for a while, lock them out.
+            logout();
+          }
+          localStorage.removeItem('familyVaultHiddenAt');
+        }
       }
     };
 
