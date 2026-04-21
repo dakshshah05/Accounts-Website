@@ -12,16 +12,28 @@ export const AuthProvider = ({ children }) => {
   const [userProfile, setUserProfile] = useState(null);
   const [familyId, setFamilyId] = useState(null);
 
+  // Initialize without any persistent storage
   useEffect(() => {
-    // Check local storage for persistent login
-    const storedUser = localStorage.getItem('familyVaultUser');
-    if (storedUser) {
-      const user = JSON.parse(storedUser);
-      setCurrentUser(user);
-      setFamilyId(user.familyId);
-      setUserProfile({ name: user.name, role: user.role, color: user.role === 'admin' ? 'bg-indigo-500' : 'bg-emerald-500' });
-    }
     setLoading(false);
+  }, []);
+
+  // Logout function
+  const logout = () => {
+    setCurrentUser(null);
+    setUserProfile(null);
+    setFamilyId(null);
+  };
+
+  // Listen for tab switch, app backgrounding, or device lock
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'hidden') {
+        logout();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
   }, []);
 
   const register = async (id, password, securityQuestion, securityAnswer) => {
@@ -42,7 +54,6 @@ export const AuthProvider = ({ children }) => {
     setCurrentUser(userData);
     setFamilyId(id);
     setUserProfile({ name: id, role: 'admin', color: 'bg-indigo-500' });
-    localStorage.setItem('familyVaultUser', JSON.stringify(userData));
   };
 
   const login = async (id, password) => {
@@ -62,7 +73,6 @@ export const AuthProvider = ({ children }) => {
       setCurrentUser(userData);
       setFamilyId(id);
       setUserProfile({ name: id, role: 'admin', color: 'bg-indigo-500' });
-      localStorage.setItem('familyVaultUser', JSON.stringify(userData));
       return;
     }
 
@@ -82,18 +92,10 @@ export const AuthProvider = ({ children }) => {
       setCurrentUser(userData);
       setFamilyId(id);
       setUserProfile({ name: matchedMember.name, role: matchedMember.role || 'member', color: 'bg-emerald-500' });
-      localStorage.setItem('familyVaultUser', JSON.stringify(userData));
       return;
     }
     
     throw new Error("Incorrect Password.");
-  };
-
-  const logout = () => {
-    setCurrentUser(null);
-    setUserProfile(null);
-    setFamilyId(null);
-    localStorage.removeItem('familyVaultUser');
   };
 
   const getSecurityQuestion = async (id) => {
