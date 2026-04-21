@@ -8,6 +8,7 @@ import DocumentsPage from './pages/DocumentsPage';
 import LoginPage from './pages/LoginPage';
 import FamilyMembersPage from './pages/FamilyMembersPage';
 import SettingsPage from './pages/SettingsPage';
+import AccountsPage from './pages/AccountsPage';
 import Sidebar from './components/layout/Sidebar';
 import Navbar from './components/layout/Navbar';
 
@@ -35,6 +36,7 @@ function App() {
         
         <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
         <Route path="/fds" element={<ProtectedRoute><FDPage /></ProtectedRoute>} />
+        <Route path="/accounts" element={<ProtectedRoute><AccountsPage /></ProtectedRoute>} />
         <Route path="/passwords" element={<ProtectedRoute><PasswordsPage /></ProtectedRoute>} />
         <Route path="/documents" element={<ProtectedRoute><DocumentsPage /></ProtectedRoute>} />
         <Route path="/members" element={<ProtectedRoute><FamilyMembersPage /></ProtectedRoute>} />

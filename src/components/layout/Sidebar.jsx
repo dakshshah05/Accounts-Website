@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, Landmark, KeyRound, FileText, Settings, Menu, X, Users } from 'lucide-react';
+import { LayoutDashboard, Landmark, KeyRound, FileText, Settings, Menu, X, Users, Wallet } from 'lucide-react';
 import clsx from 'clsx';
 import { useAuth } from '../../context/AuthContext';
 
@@ -11,6 +11,7 @@ const Sidebar = () => {
 
   const menuItems = [
     { name: 'Dashboard', path: '/', icon: LayoutDashboard },
+    { name: 'Bank Accounts', path: '/accounts', icon: Wallet },
     { name: 'Fixed Deposits', path: '/fds', icon: Landmark },
     { name: 'Passwords', path: '/passwords', icon: KeyRound },
     { name: 'Documents', path: '/documents', icon: FileText },
