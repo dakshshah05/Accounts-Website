@@ -26,8 +26,8 @@ export const AuthProvider = ({ children }) => {
 
   // Listen for tab switch, app backgrounding, or device lock
   useEffect(() => {
-    // 15 seconds grace period for brief tab switching or minimizing
-    const GRACE_PERIOD_MS = 15000; 
+    // 3 minutes grace period (180000ms), standard for banking apps when put in background
+    const GRACE_PERIOD_MS = 180000; 
     
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'hidden') {

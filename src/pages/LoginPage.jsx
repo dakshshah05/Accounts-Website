@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { Shield, Lock, User, HelpCircle, ArrowLeft } from 'lucide-react';
+import { Shield, Lock, User, HelpCircle, ArrowLeft, Eye, EyeOff } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const LoginPage = () => {
@@ -8,6 +8,7 @@ const LoginPage = () => {
   const navigate = useNavigate();
   
   const [view, setView] = useState('login'); // 'login', 'register', 'forgot_username', 'forgot_answer'
+  const [showPassword, setShowPassword] = useState(false);
   
   const [formData, setFormData] = useState({
     id: '',
@@ -134,14 +135,17 @@ const LoginPage = () => {
                     <Lock size={18} className="text-slate-500" />
                   </div>
                   <input 
-                    type="password" 
+                    type={showPassword ? "text" : "password"} 
                     name="password"
                     required
                     value={formData.password}
                     onChange={handleChange}
-                    className="w-full bg-slate-900 border border-white/10 rounded-xl pl-10 pr-4 py-3 text-slate-100 focus:outline-none focus:border-indigo-500 transition-colors"
+                    className="w-full bg-slate-900 border border-white/10 rounded-xl pl-10 pr-10 py-3 text-slate-100 focus:outline-none focus:border-indigo-500 transition-colors"
                     placeholder="Enter password"
                   />
+                  <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-500 hover:text-slate-300">
+                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
                 </div>
               </div>
               <button 
@@ -182,7 +186,10 @@ const LoginPage = () => {
                 <label className="block text-sm font-medium text-slate-300 mb-1">Create Password</label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"><Lock size={18} className="text-slate-500" /></div>
-                  <input type="password" name="password" required value={formData.password} onChange={handleChange} className="w-full bg-slate-900 border border-white/10 rounded-xl pl-10 pr-4 py-3 text-slate-100 focus:outline-none focus:border-indigo-500 transition-colors" placeholder="e.g. 123" />
+                  <input type={showPassword ? "text" : "password"} name="password" required value={formData.password} onChange={handleChange} className="w-full bg-slate-900 border border-white/10 rounded-xl pl-10 pr-10 py-3 text-slate-100 focus:outline-none focus:border-indigo-500 transition-colors" placeholder="e.g. 123" />
+                  <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-500 hover:text-slate-300">
+                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
                 </div>
               </div>
               <div>
@@ -264,7 +271,10 @@ const LoginPage = () => {
                 <label className="block text-sm font-medium text-slate-300 mb-1">New Password</label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"><Lock size={18} className="text-slate-500" /></div>
-                  <input type="password" name="newPassword" required value={formData.newPassword} onChange={handleChange} className="w-full bg-slate-900 border border-white/10 rounded-xl pl-10 pr-4 py-3 text-slate-100 focus:outline-none focus:border-indigo-500 transition-colors" placeholder="Enter new password" />
+                  <input type={showPassword ? "text" : "password"} name="newPassword" required value={formData.newPassword} onChange={handleChange} className="w-full bg-slate-900 border border-white/10 rounded-xl pl-10 pr-10 py-3 text-slate-100 focus:outline-none focus:border-indigo-500 transition-colors" placeholder="Enter new password" />
+                  <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-500 hover:text-slate-300">
+                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
                 </div>
               </div>
               <button type="submit" disabled={isLoading} className="w-full bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl px-4 py-3 font-medium transition-all duration-200 shadow-lg shadow-emerald-500/25 mt-2 disabled:opacity-70">
