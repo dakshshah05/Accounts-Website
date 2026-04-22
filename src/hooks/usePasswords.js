@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { collection, onSnapshot, addDoc, updateDoc, deleteDoc, doc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../services/firebase';
 import { useAuth } from '../context/AuthContext';
+import { encryptData, decryptData } from '../utils/encryption';
 
 export const usePasswords = () => {
   const { familyId, userProfile } = useAuth();
@@ -13,10 +14,16 @@ export const usePasswords = () => {
 
     const colRef = collection(db, 'families', familyId, 'passwords');
     const unsubscribe = onSnapshot(colRef, (snapshot) => {
-      const data = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      }));
+      const data = snapshot.docs.map(doc => {
+        const docData = doc.data();
+        const decrypted = docData.encryptedData ? decryptData(docData.encryptedData, familyId) : docData;
+        return {
+          id: doc.id,
+          ...decrypted,
+          updatedBy: docData.updatedBy || decrypted?.updatedBy,
+          updatedAt: docData.updatedAt || decrypted?.updatedAt,
+        };
+      });
       setPasswords(data);
       setLoading(false);
     });
@@ -25,16 +32,18 @@ export const usePasswords = () => {
   }, [familyId]);
 
   const addPassword = async (data) => {
+    const encryptedData = encryptData(data, familyId);
     await addDoc(collection(db, 'families', familyId, 'passwords'), {
-      ...data,
+      encryptedData,
       updatedBy: userProfile.name,
       updatedAt: serverTimestamp()
     });
   };
 
   const updatePassword = async (id, data) => {
+    const encryptedData = encryptData(data, familyId);
     await updateDoc(doc(db, 'families', familyId, 'passwords', id), {
-      ...data,
+      encryptedData,
       updatedBy: userProfile.name,
       updatedAt: serverTimestamp()
     });

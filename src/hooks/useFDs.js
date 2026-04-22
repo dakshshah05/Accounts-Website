@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { collection, onSnapshot, addDoc, updateDoc, deleteDoc, doc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../services/firebase';
 import { useAuth } from '../context/AuthContext';
+import { encryptData, decryptData } from '../utils/encryption';
 
 export const useFDs = () => {
   const { familyId, userProfile } = useAuth();
@@ -18,12 +19,16 @@ export const useFDs = () => {
     const colRef = collection(db, 'families', familyId, 'fds');
     
     const unsubscribe = onSnapshot(colRef, (snapshot) => {
-      const fdData = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-        createdAt: doc.data().createdAt?.toDate() || new Date(),
-        updatedAt: doc.data().updatedAt?.toDate() || new Date()
-      }));
+      const fdData = snapshot.docs.map(doc => {
+        const docData = doc.data();
+        const decrypted = docData.encryptedData ? decryptData(docData.encryptedData, familyId) : docData;
+        return {
+          id: doc.id,
+          ...decrypted,
+          createdAt: doc.data().createdAt?.toDate() || decrypted?.createdAt || new Date(),
+          updatedAt: doc.data().updatedAt?.toDate() || decrypted?.updatedAt || new Date()
+        };
+      });
       setFds(fdData);
       setLoading(false);
     }, (err) => {
@@ -37,9 +42,10 @@ export const useFDs = () => {
 
   const addFd = async (fdData) => {
     try {
+      const encryptedData = encryptData(fdData, familyId);
       const colRef = collection(db, 'families', familyId, 'fds');
       await addDoc(colRef, {
-        ...fdData,
+        encryptedData,
         createdBy: userProfile.name,
         updatedBy: userProfile.name,
         createdAt: serverTimestamp(),
@@ -53,9 +59,10 @@ export const useFDs = () => {
 
   const updateFd = async (fdId, updates) => {
     try {
+      const encryptedData = encryptData(updates, familyId);
       const docRef = doc(db, 'families', familyId, 'fds', fdId);
       await updateDoc(docRef, {
-        ...updates,
+        encryptedData,
         updatedBy: userProfile.name,
         updatedAt: serverTimestamp()
       });

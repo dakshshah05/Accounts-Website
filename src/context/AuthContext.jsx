@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { db } from '../services/firebase';
 import { doc, getDoc, setDoc, updateDoc, collection, getDocs } from 'firebase/firestore';
+import { hashText, decryptData } from '../utils/encryption';
 
 const AuthContext = createContext({});
 
@@ -59,9 +60,9 @@ export const AuthProvider = ({ children }) => {
     }
     await setDoc(userRef, {
       id,
-      password, // Note: In a production app, never store passwords in plain text.
+      password: hashText(password), // Hashed for security
       securityQuestion,
-      securityAnswer
+      securityAnswer: hashText(securityAnswer.toLowerCase().trim()) // Hashed for security
     });
     
     // Auto login
@@ -81,9 +82,10 @@ export const AuthProvider = ({ children }) => {
     }
     
     const adminData = userSnap.data();
+    const inputHash = hashText(password);
 
-    // 1. Check if the password matches the admin password
-    if (adminData.password === password) {
+    // 1. Check if the password matches the admin password (handles both hashed and legacy plain text)
+    if (adminData.password === inputHash || adminData.password === password) {
       const userData = { uid: id, familyId: id, id, name: id, role: 'admin' };
       setCurrentUser(userData);
       setFamilyId(id);
@@ -97,8 +99,13 @@ export const AuthProvider = ({ children }) => {
     let matchedMember = null;
     
     membersSnap.forEach(docSnap => {
-      if (docSnap.data().password === password) {
-        matchedMember = { id: docSnap.id, ...docSnap.data() };
+      const docData = docSnap.data();
+      const memberObj = docData.encryptedData ? decryptData(docData.encryptedData, id) : docData;
+      
+      if (memberObj) {
+        if (memberObj.password === inputHash || memberObj.password === password || hashText(memberObj.password) === inputHash) {
+          matchedMember = { id: docSnap.id, ...memberObj };
+        }
       }
     });
 
@@ -129,12 +136,15 @@ export const AuthProvider = ({ children }) => {
       throw new Error("Family ID not found.");
     }
     const userData = userSnap.data();
-    if (userData.securityAnswer.toLowerCase().trim() !== answer.toLowerCase().trim()) {
+    const answerInput = answer.toLowerCase().trim();
+    const answerHash = hashText(answerInput);
+    
+    if (userData.securityAnswer !== answerHash && userData.securityAnswer?.toLowerCase()?.trim() !== answerInput) {
       throw new Error("Incorrect security answer.");
     }
     
     await updateDoc(userRef, {
-      password: newPassword
+      password: hashText(newPassword)
     });
   };
 

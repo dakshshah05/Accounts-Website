@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { collection, onSnapshot, addDoc, updateDoc, deleteDoc, doc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../services/firebase';
 import { useAuth } from '../context/AuthContext';
+import { encryptData, decryptData } from '../utils/encryption';
 
 export const useMembers = () => {
   const { familyId } = useAuth();
@@ -16,10 +17,16 @@ export const useMembers = () => {
 
     const colRef = collection(db, 'families', familyId, 'members');
     const unsubscribe = onSnapshot(colRef, (snapshot) => {
-      const data = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      }));
+      const data = snapshot.docs.map(doc => {
+        const docData = doc.data();
+        const decrypted = docData.encryptedData ? decryptData(docData.encryptedData, familyId) : docData;
+        return {
+          id: doc.id,
+          ...decrypted,
+          updatedBy: docData.updatedBy || decrypted?.updatedBy,
+          updatedAt: docData.updatedAt || decrypted?.updatedAt,
+        };
+      });
       setMembers(data);
       setLoading(false);
     }, (err) => {
@@ -31,15 +38,20 @@ export const useMembers = () => {
   }, [familyId]);
 
   const addMember = async (data) => {
+    const encryptedData = encryptData(data, familyId);
     await addDoc(collection(db, 'families', familyId, 'members'), {
-      ...data,
+      encryptedData,
       createdAt: serverTimestamp()
     });
   };
 
   const updateMember = async (id, data) => {
+    const encryptedData = encryptData(data, familyId);
     const docRef = doc(db, 'families', familyId, 'members', id);
-    await updateDoc(docRef, data);
+    await updateDoc(docRef, {
+      encryptedData,
+      updatedAt: serverTimestamp()
+    });
   };
 
   const deleteMember = async (id) => {
