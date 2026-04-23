@@ -84,13 +84,12 @@ const AccountsPage = () => {
       {processedAcc.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
           {processedAcc.map(acc => (
-            <div key={acc.id} className="relative group">
-              <AccountCard acc={acc} />
-              <div className="absolute top-4 right-4 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity z-20">
-                <button onClick={() => handleOpenModal(acc)} className="bg-slate-800 border border-white/10 text-white p-1.5 rounded-lg hover:bg-slate-700">Edit</button>
-                <button onClick={() => handleDelete(acc)} className="bg-red-500/20 border border-red-500/30 text-red-400 p-1.5 rounded-lg hover:bg-red-500/40">Del</button>
-              </div>
-            </div>
+            <AccountCard 
+              key={acc.id} 
+              acc={acc} 
+              onEdit={handleOpenModal} 
+              onDelete={handleDelete} 
+            />
           ))}
         </div>
       ) : (

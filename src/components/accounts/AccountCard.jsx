@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Copy, ExternalLink, ShieldCheck, Building2, CreditCard, PiggyBank, Share2 } from 'lucide-react';
+import { Copy, ExternalLink, ShieldCheck, Building2, CreditCard, PiggyBank, Share2, Pencil, Trash2 } from 'lucide-react';
 import Badge from '../shared/Badge';
 
 const AccountCard = ({ acc, onEdit, onDelete }) => {
@@ -62,15 +62,31 @@ const AccountCard = ({ acc, onEdit, onDelete }) => {
           </div>
         </div>
         
-        <div className="flex gap-2 items-center">
+        <div className="flex gap-1.5 items-center">
           <button 
             onClick={handleShare}
-            className="p-1.5 text-slate-400 hover:text-indigo-400 bg-white/5 hover:bg-white/10 rounded-lg transition-colors shadow-sm"
+            className="p-1.5 text-slate-400 hover:text-indigo-400 hover:bg-white/10 rounded-lg transition-colors"
             title="Share Details"
           >
             <Share2 size={16} />
           </button>
-          <Badge variant="default" className="text-[10px] uppercase tracking-wider">{acc.member}</Badge>
+          <button 
+            onClick={() => onEdit(acc)}
+            className="p-1.5 text-slate-400 hover:text-emerald-400 hover:bg-white/10 rounded-lg transition-colors"
+            title="Edit Account"
+          >
+            <Pencil size={16} />
+          </button>
+          <button 
+            onClick={() => onDelete(acc)}
+            className="p-1.5 text-slate-400 hover:text-red-400 hover:bg-white/10 rounded-lg transition-colors"
+            title="Delete Account"
+          >
+            <Trash2 size={16} />
+          </button>
+          <div className="ml-1">
+            <Badge variant="default" className="text-[10px] uppercase tracking-wider px-2 py-0.5">{acc.member}</Badge>
+          </div>
         </div>
       </div>
 
