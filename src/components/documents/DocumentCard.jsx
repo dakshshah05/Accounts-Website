@@ -1,5 +1,5 @@
 import React from 'react';
-import { FileText, Download, Eye, CalendarClock } from 'lucide-react';
+import { FileText, Download, Eye, CalendarClock, Pencil, Trash2 } from 'lucide-react';
 import Badge from '../shared/Badge';
 
 const DocumentCard = ({ doc, onEdit, onDelete, onView }) => {
@@ -39,13 +39,13 @@ const DocumentCard = ({ doc, onEdit, onDelete, onView }) => {
               </>
             )}
             {onEdit && (
-              <button onClick={() => onEdit(doc)} className="p-1.5 text-slate-400 hover:text-indigo-400 hover:bg-white/5 rounded-md transition-colors" title="Edit">
-                <span className="text-xs font-semibold px-1">Edit</span>
+              <button onClick={() => onEdit(doc)} className="p-1.5 text-slate-400 hover:text-emerald-400 hover:bg-white/5 rounded-md transition-colors" title="Edit">
+                <Pencil size={16} />
               </button>
             )}
             {onDelete && (
               <button onClick={() => onDelete(doc)} className="p-1.5 text-slate-400 hover:text-red-400 hover:bg-white/5 rounded-md transition-colors" title="Delete">
-                <span className="text-xs font-semibold px-1">Del</span>
+                <Trash2 size={16} />
               </button>
             )}
           </div>

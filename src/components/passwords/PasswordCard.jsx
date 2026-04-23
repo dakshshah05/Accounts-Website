@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Eye, EyeOff, Copy, ExternalLink, ShieldCheck } from 'lucide-react';
+import { Eye, EyeOff, Copy, ExternalLink, ShieldCheck, Pencil, Trash2 } from 'lucide-react';
 import Badge from '../shared/Badge';
 
 const PasswordCard = ({ pwd, onEdit, onDelete }) => {
@@ -39,7 +39,25 @@ const PasswordCard = ({ pwd, onEdit, onDelete }) => {
           </div>
         </div>
         
-        <Badge variant="default" className="text-[10px] uppercase tracking-wider">{pwd.member}</Badge>
+        <div className="flex gap-1.5 items-center">
+          <button 
+            onClick={() => onEdit(pwd)}
+            className="p-1.5 text-slate-400 hover:text-emerald-400 hover:bg-white/10 rounded-lg transition-colors"
+            title="Edit Password"
+          >
+            <Pencil size={16} />
+          </button>
+          <button 
+            onClick={() => onDelete(pwd)}
+            className="p-1.5 text-slate-400 hover:text-red-400 hover:bg-white/10 rounded-lg transition-colors"
+            title="Delete Password"
+          >
+            <Trash2 size={16} />
+          </button>
+          <div className="ml-1">
+            <Badge variant="default" className="text-[10px] uppercase tracking-wider px-2 py-0.5">{pwd.member}</Badge>
+          </div>
+        </div>
       </div>
 
       <div className="space-y-3 mt-6">
