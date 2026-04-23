@@ -1,10 +1,28 @@
 import React from 'react';
-import { FileText, Download, Eye, CalendarClock, Pencil, Trash2 } from 'lucide-react';
+import { FileText, Download, Eye, CalendarClock, Pencil, Trash2, Share2 } from 'lucide-react';
 import Badge from '../shared/Badge';
 
 const DocumentCard = ({ doc, onEdit, onDelete, onView }) => {
   const isExpiringSoon = false; // Mock logic
   const isExpired = false;
+
+  const handleShare = async () => {
+    const textToShare = `Document Details:\nName: ${doc.label}\nType: ${doc.type}\nNumber: ${doc.docNumber}\nBelongs to: ${doc.member}`;
+    
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: `Document: ${doc.label}`,
+          text: textToShare
+        });
+      } catch (err) {
+        console.error('Share failed', err);
+      }
+    } else {
+      navigator.clipboard.writeText(textToShare);
+      alert('Document details copied to clipboard!');
+    }
+  };
 
   return (
     <div className="bg-white/5 border border-white/10 rounded-2xl p-5 hover:-translate-y-1 transition-all duration-300 shadow-lg group relative flex flex-col justify-between">
@@ -23,6 +41,9 @@ const DocumentCard = ({ doc, onEdit, onDelete, onView }) => {
         <div className="flex flex-col items-end gap-2">
           <Badge variant="primary" className="text-[10px] uppercase tracking-wider">{doc.member}</Badge>
           <div className="flex gap-1 bg-slate-800/80 backdrop-blur rounded-lg border border-white/10 p-1">
+            <button onClick={handleShare} className="p-1.5 text-slate-400 hover:text-indigo-400 hover:bg-white/5 rounded-md transition-colors" title="Share Details">
+              <Share2 size={16} />
+            </button>
             {doc.fileUrl && (
               <>
                 <button onClick={onView} className="p-1.5 text-slate-400 hover:text-indigo-400 hover:bg-white/5 rounded-md transition-colors" title="View">
