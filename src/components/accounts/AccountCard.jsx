@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Copy, ExternalLink, ShieldCheck, Building2, CreditCard, PiggyBank } from 'lucide-react';
+import { Copy, ExternalLink, ShieldCheck, Building2, CreditCard, PiggyBank, Share2 } from 'lucide-react';
 import Badge from '../shared/Badge';
 
 const AccountCard = ({ acc, onEdit, onDelete }) => {
@@ -9,6 +9,26 @@ const AccountCard = ({ acc, onEdit, onDelete }) => {
     navigator.clipboard.writeText(text);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleShare = async () => {
+    const textToShare = `Bank Details:\nBank: ${acc.bankName}\nAccount Holder: ${acc.member}\nAccount Number: ${acc.accountNumber}${acc.ifscCode ? `\nIFSC/Routing: ${acc.ifscCode}` : ''}`;
+    
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: `${acc.bankName} Account Details`,
+          text: textToShare
+        });
+      } catch (err) {
+        console.error('Share failed', err);
+        // Fallback or silently ignore if user cancelled
+      }
+    } else {
+      // Fallback to clipboard if Web Share API is unavailable
+      handleCopy(textToShare);
+      alert('Details copied to clipboard!');
+    }
   };
 
   // Mock category colors
@@ -42,7 +62,16 @@ const AccountCard = ({ acc, onEdit, onDelete }) => {
           </div>
         </div>
         
-        <Badge variant="default" className="text-[10px] uppercase tracking-wider">{acc.member}</Badge>
+        <div className="flex gap-2 items-center">
+          <button 
+            onClick={handleShare}
+            className="p-1.5 text-slate-400 hover:text-indigo-400 bg-white/5 hover:bg-white/10 rounded-lg transition-colors shadow-sm"
+            title="Share Details"
+          >
+            <Share2 size={16} />
+          </button>
+          <Badge variant="default" className="text-[10px] uppercase tracking-wider">{acc.member}</Badge>
+        </div>
       </div>
 
       <div className="space-y-3 mt-6">
