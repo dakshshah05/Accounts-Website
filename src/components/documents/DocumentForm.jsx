@@ -17,6 +17,10 @@ const DocumentForm = ({ initialData, onSubmit, onCancel }) => {
   
   const [fileUrl, setFileUrl] = useState(initialData?.fileUrl || null);
   const [fileName, setFileName] = useState(initialData?.fileName || "");
+  const [isUploading, setIsUploading] = useState(false);
+
+  // IMPORTANT: Replace this with your deployed Google Apps Script Web App URL
+  const GOOGLE_SCRIPT_URL = "YOUR_GOOGLE_SCRIPT_URL_HERE";
 
   const docTypes = ['Identity', 'Banking', 'Insurance', 'Property', 'Medical', 'Education', 'Other'];
 
@@ -42,9 +46,52 @@ const DocumentForm = ({ initialData, onSubmit, onCancel }) => {
     }
   };
 
-  const handleSubmit = (e) => {
+  const uploadToGoogleDrive = async (base64Data, filename, mimeType) => {
+    const base64String = base64Data.split(',')[1];
+    
+    const params = new URLSearchParams();
+    params.append('base64', base64String);
+    params.append('filename', filename);
+    params.append('mimeType', mimeType);
+
+    const response = await fetch(GOOGLE_SCRIPT_URL, {
+      method: 'POST',
+      body: params,
+    });
+    
+    const result = await response.json();
+    if (result.status === 'success') {
+      return result.url; // Google Drive Web Content Link or View Link
+    } else {
+      throw new Error(result.message);
+    }
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    onSubmit({ ...formData, fileUrl, fileName });
+    setIsUploading(true);
+    
+    try {
+      let finalFileUrl = fileUrl;
+      
+      // If fileUrl is a new base64 string, upload it to Google Drive
+      if (fileUrl && fileUrl.startsWith('data:')) {
+        if (GOOGLE_SCRIPT_URL === "YOUR_GOOGLE_SCRIPT_URL_HERE") {
+           alert("Please replace YOUR_GOOGLE_SCRIPT_URL_HERE in DocumentForm.jsx with your deployed Google Apps Script URL!");
+           setIsUploading(false);
+           return;
+        }
+        
+        const mimeType = fileUrl.split(';')[0].split(':')[1];
+        finalFileUrl = await uploadToGoogleDrive(fileUrl, fileName || 'document', mimeType);
+      }
+
+      await onSubmit({ ...formData, fileUrl: finalFileUrl, fileName });
+    } catch (err) {
+      alert("Failed to upload to Google Drive: " + err.message);
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   return (
@@ -161,9 +208,14 @@ const DocumentForm = ({ initialData, onSubmit, onCancel }) => {
         </button>
         <button 
           type="submit" 
-          className="flex-1 py-3 px-4 rounded-xl bg-indigo-500 hover:bg-indigo-600 text-white shadow-lg shadow-indigo-500/25 transition-all font-medium"
+          disabled={isUploading}
+          className="flex-1 py-3 px-4 rounded-xl bg-indigo-500 hover:bg-indigo-600 disabled:opacity-50 text-white shadow-lg shadow-indigo-500/25 transition-all font-medium flex justify-center items-center gap-2"
         >
-          {initialData ? 'Save Changes' : 'Upload Document'}
+          {isUploading ? (
+            <><div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div> Uploading...</>
+          ) : (
+            initialData ? 'Save Changes' : 'Upload Document'
+          )}
         </button>
       </div>
     </form>

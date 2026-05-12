@@ -6,6 +6,11 @@ const DocumentViewer = ({ isOpen, onClose, doc }) => {
 
   const isImage = doc.fileUrl?.startsWith('data:image/');
   const isPDF = doc.fileUrl?.startsWith('data:application/pdf');
+  const isDriveUrl = doc.fileUrl?.includes('drive.google.com');
+
+  const getDrivePreviewUrl = (url) => {
+    return url.replace(/\/view.*$/, '/preview');
+  };
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-8">
@@ -66,6 +71,13 @@ const DocumentViewer = ({ isOpen, onClose, doc }) => {
               src={doc.fileUrl} 
               className="w-full h-full min-h-[70vh] rounded-lg border-0"
               title={doc.label}
+            />
+          ) : isDriveUrl ? (
+            <iframe 
+              src={getDrivePreviewUrl(doc.fileUrl)} 
+              className="w-full h-full min-h-[70vh] rounded-lg border-0 bg-white"
+              title={doc.label}
+              allow="autoplay"
             />
           ) : (
             <div className="text-center py-20">
