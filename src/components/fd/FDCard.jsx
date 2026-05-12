@@ -1,6 +1,7 @@
 import React from 'react';
-import { Pencil, Trash2, Landmark, ShieldAlert } from 'lucide-react';
+import { Pencil, Trash2, Landmark, ShieldAlert, BellPlus } from 'lucide-react';
 import { formatCurrency } from '../../utils/formatCurrency';
+import { generateICS } from '../../utils/calendar';
 import Badge from '../shared/Badge';
 import clsx from 'clsx';
 
@@ -23,6 +24,12 @@ const FDCard = ({ fd, onEdit, onDelete }) => {
   // Find member color (Mock colors logic, ideally passed down via context or saved on FD)
   const colors = ['bg-indigo-500', 'bg-emerald-500', 'bg-amber-500', 'bg-red-500'];
   const memberColor = fd.memberColor || colors[fd.member?.length % colors.length || 0];
+
+  const handleReminder = () => {
+    const title = `${fd.bank} FD Maturing (${fd.member})`;
+    const desc = `Your Fixed Deposit at ${fd.bank} is maturing.\nPrincipal: ${formatCurrency(fd.principal)}\nMaturity Value: ${formatCurrency(fd.maturityAmount)}`;
+    generateICS(title, desc, fd.maturityDate);
+  };
 
   return (
     <div className="bg-white/5 border border-white/10 rounded-2xl p-5 hover:-translate-y-1 transition-all duration-300 shadow-lg relative group flex flex-col justify-between">
@@ -86,11 +93,18 @@ const FDCard = ({ fd, onEdit, onDelete }) => {
             <div className="text-xs text-slate-500 mb-1 flex items-center gap-1">
               Matures on 
               {daysUntilMaturity > 0 && daysUntilMaturity <= 30 && (
-                 <ShieldAlert size={12} className="text-amber-500" />
+                 <ShieldAlert size={12} className="text-amber-500" title="Maturing soon!" />
               )}
             </div>
-            <div className={clsx("text-sm font-medium", daysUntilMaturity > 0 && daysUntilMaturity <= 30 ? "text-amber-400" : "text-slate-300")}>
-              {new Date(fd.maturityDate).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })}
+            <div className="flex items-center gap-2">
+              <div className={clsx("text-sm font-medium", daysUntilMaturity > 0 && daysUntilMaturity <= 30 ? "text-amber-400" : "text-slate-300")}>
+                {new Date(fd.maturityDate).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })}
+              </div>
+              {daysUntilMaturity > 0 && (
+                <button onClick={handleReminder} className="text-indigo-400 hover:text-indigo-300 transition-colors p-1 bg-indigo-500/10 rounded-md hover:bg-indigo-500/20" title="Set Calendar Reminder">
+                  <BellPlus size={14} />
+                </button>
+              )}
             </div>
           </div>
           <div className="text-right">

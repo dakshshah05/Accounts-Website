@@ -1,10 +1,17 @@
 import React from 'react';
-import { FileText, Download, Eye, CalendarClock, Pencil, Trash2, Share2 } from 'lucide-react';
+import { FileText, Download, Eye, CalendarClock, Pencil, Trash2, Share2, BellPlus } from 'lucide-react';
+import { generateICS } from '../../utils/calendar';
 import Badge from '../shared/Badge';
 
 const DocumentCard = ({ doc, onEdit, onDelete, onView }) => {
   const isExpiringSoon = false; // Mock logic
   const isExpired = false;
+
+  const handleReminder = () => {
+    const title = `${doc.label} Expiring (${doc.member})`;
+    const desc = `Your document '${doc.label}' (${doc.type}) is expiring on ${doc.expiryDate}.\nDocument No: ${doc.docNumber || 'N/A'}`;
+    generateICS(title, desc, doc.expiryDate);
+  };
 
   const handleShare = async () => {
     const textToShare = `Document Details:\nName: ${doc.label}\nType: ${doc.type}\nNumber: ${doc.docNumber}\nBelongs to: ${doc.member}`;
@@ -89,12 +96,17 @@ const DocumentCard = ({ doc, onEdit, onDelete, onView }) => {
             </div>
           )}
           {doc.expiryDate && (
-            <div className="text-right flex items-center gap-1 text-amber-400">
-              <CalendarClock size={12} />
-              <div>
-                <span className="block text-[10px] text-amber-500/70 uppercase mb-0.5">Expires</span>
-                {doc.expiryDate}
+            <div className="text-right flex items-center gap-2">
+              <div className="flex items-center gap-1 text-amber-400">
+                <CalendarClock size={12} />
+                <div>
+                  <span className="block text-[10px] text-amber-500/70 uppercase mb-0.5">Expires</span>
+                  {doc.expiryDate}
+                </div>
               </div>
+              <button onClick={handleReminder} className="text-indigo-400 hover:text-indigo-300 transition-colors p-1 bg-indigo-500/10 rounded-md hover:bg-indigo-500/20" title="Set Calendar Reminder">
+                <BellPlus size={14} />
+              </button>
             </div>
           )}
         </div>
