@@ -14,19 +14,45 @@ const DocumentCard = ({ doc, onEdit, onDelete, onView }) => {
   };
 
   const handleShare = async () => {
-    const textToShare = `Document Details:\nName: ${doc.label}\nType: ${doc.type}\nNumber: ${doc.docNumber}\nBelongs to: ${doc.member}`;
+    let textToShare = `Document Details:\nName: ${doc.label}\nType: ${doc.type}\nNumber: ${doc.docNumber || 'N/A'}\nBelongs to: ${doc.member}`;
     
+    let shareData = {
+      title: `Document: ${doc.label}`,
+      text: textToShare
+    };
+
+    if (doc.fileUrl) {
+      if (doc.fileUrl.startsWith('data:')) {
+        try {
+          // Convert base64 to File object
+          const res = await fetch(doc.fileUrl);
+          const blob = await res.blob();
+          const file = new File([blob], doc.fileName || `${doc.label}.pdf`, { type: blob.type });
+          
+          if (navigator.canShare && navigator.canShare({ files: [file] })) {
+            shareData.files = [file];
+          } else {
+            shareData.text += `\n\n(File cannot be attached automatically on this device)`;
+          }
+        } catch (e) {
+          console.error("Could not convert data URI to file", e);
+        }
+      } else if (doc.fileUrl.includes('drive.google.com')) {
+        shareData.url = doc.fileUrl;
+        shareData.text += `\n\nSecure Link: ${doc.fileUrl}`;
+      }
+    }
+
     if (navigator.share) {
       try {
-        await navigator.share({
-          title: `Document: ${doc.label}`,
-          text: textToShare
-        });
+        await navigator.share(shareData);
       } catch (err) {
-        console.error('Share failed', err);
+        if (err.name !== 'AbortError') {
+          console.error('Share failed', err);
+        }
       }
     } else {
-      navigator.clipboard.writeText(textToShare);
+      navigator.clipboard.writeText(shareData.text);
       alert('Document details copied to clipboard!');
     }
   };
