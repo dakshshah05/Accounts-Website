@@ -20,7 +20,7 @@ const DocumentForm = ({ initialData, onSubmit, onCancel }) => {
   const [isUploading, setIsUploading] = useState(false);
 
   // IMPORTANT: Replace this with your deployed Google Apps Script Web App URL
-  const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwHrNO0sDFGoLopw1Qel6l52fRrgpq_LK9-Us3zHfkTLY3riJTfghYBvi6YAcI0-lf-Rw/exec";
+  const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz9kIAUUKAFlawu1bfVzTY1uQGBdZg566Rann0jaJrwWPdUZayQC869QrkNEKOhyOgzTA/exec";
 
   const docTypes = ['Identity', 'Banking', 'Insurance', 'Property', 'Medical', 'Education', 'Other'];
 
