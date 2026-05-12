@@ -38,7 +38,6 @@ const DocumentCard = ({ doc, onEdit, onDelete, onView }) => {
           console.error("Could not convert data URI to file", e);
         }
       } else if (doc.fileUrl.includes('drive.google.com')) {
-        shareData.url = doc.fileUrl;
         shareData.text += `\n\nSecure Link: ${doc.fileUrl}`;
       }
     }
