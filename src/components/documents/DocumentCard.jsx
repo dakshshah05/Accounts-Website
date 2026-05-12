@@ -1,6 +1,6 @@
 import React from 'react';
 import { FileText, Download, Eye, CalendarClock, Pencil, Trash2, Share2, BellPlus } from 'lucide-react';
-import { generateICS } from '../../utils/calendar';
+import { addToGoogleCalendar } from '../../utils/calendar';
 import Badge from '../shared/Badge';
 
 const DocumentCard = ({ doc, onEdit, onDelete, onView }) => {
@@ -10,7 +10,7 @@ const DocumentCard = ({ doc, onEdit, onDelete, onView }) => {
   const handleReminder = () => {
     const title = `${doc.label} Expiring (${doc.member})`;
     const desc = `Your document '${doc.label}' (${doc.type}) is expiring on ${doc.expiryDate}.\nDocument No: ${doc.docNumber || 'N/A'}`;
-    generateICS(title, desc, doc.expiryDate);
+    addToGoogleCalendar(title, desc, doc.expiryDate);
   };
 
   const handleShare = async () => {

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Pencil, Trash2, Landmark, ShieldAlert, BellPlus } from 'lucide-react';
 import { formatCurrency } from '../../utils/formatCurrency';
-import { generateICS } from '../../utils/calendar';
+import { addToGoogleCalendar } from '../../utils/calendar';
 import Badge from '../shared/Badge';
 import clsx from 'clsx';
 
@@ -28,7 +28,7 @@ const FDCard = ({ fd, onEdit, onDelete }) => {
   const handleReminder = () => {
     const title = `${fd.bank} FD Maturing (${fd.member})`;
     const desc = `Your Fixed Deposit at ${fd.bank} is maturing.\nPrincipal: ${formatCurrency(fd.principal)}\nMaturity Value: ${formatCurrency(fd.maturityAmount)}`;
-    generateICS(title, desc, fd.maturityDate);
+    addToGoogleCalendar(title, desc, fd.maturityDate);
   };
 
   return (
