@@ -14,6 +14,10 @@ const DocumentsPage = () => {
   const { state } = useFamilyData();
   const { documents, addDocument, updateDocument, deleteDocument } = useDocuments();
   const { members } = useMembers();
+
+  // Must match the URL in DocumentForm.jsx
+  const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz9kIAUUKAFlawu1bfVzTY1uQGBdZg566Rann0jaJrwWPdUZayQC869QrkNEKOhyOgzTA/exec";
+  
   
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isViewerOpen, setIsViewerOpen] = useState(false);
@@ -47,9 +51,33 @@ const DocumentsPage = () => {
     }
   };
 
+  const deleteFromGoogleDrive = async (fileUrl) => {
+    if (!fileUrl || !fileUrl.includes('drive.google.com')) return;
+    
+    const match = fileUrl.match(/\/d\/(.+?)\//);
+    if (!match || !match[1]) return;
+    
+    const fileId = match[1];
+    const params = new URLSearchParams();
+    params.append('action', 'delete');
+    params.append('fileId', fileId);
+
+    try {
+      await fetch(GOOGLE_SCRIPT_URL, {
+        method: 'POST',
+        body: params,
+      });
+    } catch (err) {
+      console.error("Failed to delete from Google Drive", err);
+    }
+  };
+
   const handleDelete = async (doc) => {
     if (window.confirm("Are you sure you want to delete this document?")) {
       try {
+        if (doc.fileUrl && doc.fileUrl.includes('drive.google.com')) {
+          await deleteFromGoogleDrive(doc.fileUrl);
+        }
         await deleteDocument(doc.id);
       } catch (err) {
         alert("Delete failed! Check Firebase Database Rules.");

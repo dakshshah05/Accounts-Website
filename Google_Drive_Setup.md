@@ -11,6 +11,20 @@ You need to deploy a tiny script on your Google Account that will receive the do
 ```javascript
 function doPost(e) {
   try {
+    var action = e.parameter.action;
+
+    // Handle Deletion
+    if (action === "delete") {
+      var fileId = e.parameter.fileId;
+      var fileToDelete = DriveApp.getFileById(fileId);
+      fileToDelete.setTrashed(true);
+      return ContentService.createTextOutput(JSON.stringify({
+        status: "success",
+        message: "File deleted"
+      })).setMimeType(ContentService.MimeType.JSON);
+    }
+
+    // Handle Upload
     var base64Data = e.parameter.base64;
     var filename = e.parameter.filename;
     var mimeType = e.parameter.mimeType;
