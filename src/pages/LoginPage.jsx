@@ -107,7 +107,7 @@ const LoginPage = () => {
 
             {error && <div className="mb-4 text-red-400 text-sm font-medium text-center bg-red-400/10 p-3 rounded-lg border border-red-400/20">{error}</div>}
 
-            <form onSubmit={handleLogin} className="space-y-4">
+            <form onSubmit={handleLogin} className="space-y-4" autoComplete="off">
               <div>
                 <label className="block text-sm font-medium text-slate-300 mb-1">Family ID</label>
                 <div className="relative">
@@ -120,6 +120,8 @@ const LoginPage = () => {
                     required
                     value={formData.id}
                     onChange={handleChange}
+                    autoComplete="off"
+                    spellCheck="false"
                     className="w-full bg-slate-900 border border-white/10 rounded-xl pl-10 pr-4 py-3 text-slate-100 focus:outline-none focus:border-indigo-500 transition-colors"
                     placeholder="e.g. Daksh215"
                   />
@@ -140,6 +142,7 @@ const LoginPage = () => {
                     required
                     value={formData.password}
                     onChange={handleChange}
+                    autoComplete="new-password"
                     className="w-full bg-slate-900 border border-white/10 rounded-xl pl-10 pr-10 py-3 text-slate-100 focus:outline-none focus:border-indigo-500 transition-colors"
                     placeholder="Enter password"
                   />
@@ -174,19 +177,19 @@ const LoginPage = () => {
 
             {error && <div className="mb-4 text-red-400 text-sm font-medium text-center bg-red-400/10 p-3 rounded-lg border border-red-400/20">{error}</div>}
 
-            <form onSubmit={handleRegister} className="space-y-4">
+            <form onSubmit={handleRegister} className="space-y-4" autoComplete="off">
               <div>
                 <label className="block text-sm font-medium text-slate-300 mb-1">Choose a Family ID</label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"><User size={18} className="text-slate-500" /></div>
-                  <input type="text" name="id" required value={formData.id} onChange={handleChange} className="w-full bg-slate-900 border border-white/10 rounded-xl pl-10 pr-4 py-3 text-slate-100 focus:outline-none focus:border-indigo-500 transition-colors" placeholder="e.g. Daksh215" />
+                  <input type="text" name="id" required value={formData.id} onChange={handleChange} autoComplete="off" spellCheck="false" className="w-full bg-slate-900 border border-white/10 rounded-xl pl-10 pr-4 py-3 text-slate-100 focus:outline-none focus:border-indigo-500 transition-colors" placeholder="e.g. Daksh215" />
                 </div>
               </div>
               <div>
                 <label className="block text-sm font-medium text-slate-300 mb-1">Create Password</label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"><Lock size={18} className="text-slate-500" /></div>
-                  <input type={showPassword ? "text" : "password"} name="password" required value={formData.password} onChange={handleChange} className="w-full bg-slate-900 border border-white/10 rounded-xl pl-10 pr-10 py-3 text-slate-100 focus:outline-none focus:border-indigo-500 transition-colors" placeholder="e.g. 123" />
+                  <input type={showPassword ? "text" : "password"} name="password" required value={formData.password} onChange={handleChange} autoComplete="new-password" className="w-full bg-slate-900 border border-white/10 rounded-xl pl-10 pr-10 py-3 text-slate-100 focus:outline-none focus:border-indigo-500 transition-colors" placeholder="e.g. 123" />
                   <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-500 hover:text-slate-300">
                     {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                   </button>
@@ -232,12 +235,12 @@ const LoginPage = () => {
 
             {error && <div className="mb-4 text-red-400 text-sm font-medium text-center bg-red-400/10 p-3 rounded-lg border border-red-400/20">{error}</div>}
 
-            <form onSubmit={handleForgotUsernameSubmit} className="space-y-4">
+            <form onSubmit={handleForgotUsernameSubmit} className="space-y-4" autoComplete="off">
               <div>
                 <label className="block text-sm font-medium text-slate-300 mb-1">Family ID</label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"><User size={18} className="text-slate-500" /></div>
-                  <input type="text" name="id" required value={formData.id} onChange={handleChange} className="w-full bg-slate-900 border border-white/10 rounded-xl pl-10 pr-4 py-3 text-slate-100 focus:outline-none focus:border-indigo-500 transition-colors" placeholder="e.g. Daksh215" />
+                  <input type="text" name="id" required value={formData.id} onChange={handleChange} autoComplete="off" spellCheck="false" className="w-full bg-slate-900 border border-white/10 rounded-xl pl-10 pr-4 py-3 text-slate-100 focus:outline-none focus:border-indigo-500 transition-colors" placeholder="e.g. Daksh215" />
                 </div>
               </div>
               <button type="submit" disabled={isLoading} className="w-full bg-indigo-500 hover:bg-indigo-600 text-white rounded-xl px-4 py-3 font-medium transition-all duration-200 shadow-lg shadow-indigo-500/25 disabled:opacity-70">
@@ -258,20 +261,20 @@ const LoginPage = () => {
 
             {error && <div className="mb-4 text-red-400 text-sm font-medium text-center bg-red-400/10 p-3 rounded-lg border border-red-400/20">{error}</div>}
 
-            <form onSubmit={handleForgotAnswerSubmit} className="space-y-4">
+            <form onSubmit={handleForgotAnswerSubmit} className="space-y-4" autoComplete="off">
               <div className="bg-slate-900/50 p-4 rounded-xl border border-white/5 mb-4">
                 <p className="text-sm text-slate-300 font-medium">Question for {formData.id}:</p>
                 <p className="text-lg text-white font-semibold mt-1">{fetchedQuestion}</p>
               </div>
               <div>
                 <label className="block text-sm font-medium text-slate-300 mb-1">Your Answer</label>
-                <input type="text" name="securityAnswer" required value={formData.securityAnswer} onChange={handleChange} className="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 text-slate-100 focus:outline-none focus:border-indigo-500 transition-colors" placeholder="Enter answer" />
+                <input type="text" name="securityAnswer" required value={formData.securityAnswer} onChange={handleChange} autoComplete="off" spellCheck="false" className="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 text-slate-100 focus:outline-none focus:border-indigo-500 transition-colors" placeholder="Enter answer" />
               </div>
               <div>
                 <label className="block text-sm font-medium text-slate-300 mb-1">New Password</label>
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"><Lock size={18} className="text-slate-500" /></div>
-                  <input type={showPassword ? "text" : "password"} name="newPassword" required value={formData.newPassword} onChange={handleChange} className="w-full bg-slate-900 border border-white/10 rounded-xl pl-10 pr-10 py-3 text-slate-100 focus:outline-none focus:border-indigo-500 transition-colors" placeholder="Enter new password" />
+                  <input type={showPassword ? "text" : "password"} name="newPassword" required value={formData.newPassword} onChange={handleChange} autoComplete="new-password" className="w-full bg-slate-900 border border-white/10 rounded-xl pl-10 pr-10 py-3 text-slate-100 focus:outline-none focus:border-indigo-500 transition-colors" placeholder="Enter new password" />
                   <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-500 hover:text-slate-300">
                     {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                   </button>
