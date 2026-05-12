@@ -54,7 +54,6 @@ const DocumentForm = ({ initialData, onSubmit, onCancel }) => {
           <label className="block text-sm font-medium text-slate-300 mb-1">Family Member</label>
           <select
             name="member"
-            required
             value={formData.member}
             onChange={handleChange}
             className="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-2.5 text-slate-100 focus:outline-none focus:border-indigo-500 transition-colors appearance-none"
@@ -83,7 +82,6 @@ const DocumentForm = ({ initialData, onSubmit, onCancel }) => {
           <input 
             type="text" 
             name="label"
-            required
             value={formData.label} 
             onChange={handleChange}
             placeholder="e.g. Aadhaar Card, Max Life Policy"
@@ -127,9 +125,14 @@ const DocumentForm = ({ initialData, onSubmit, onCancel }) => {
       </div>
 
       {/* File Upload Area */}
-      <div className="relative group cursor-pointer">
-        <label className="cursor-pointer block w-full p-8 border-2 border-dashed border-white/20 rounded-2xl bg-white/5 hover:bg-white/10 transition-colors text-center group-hover:border-indigo-500/50">
-          <input type="file" className="hidden" onChange={handleFileChange} />
+      <div className="relative group cursor-pointer overflow-hidden">
+        <label className="cursor-pointer block w-full p-8 border-2 border-dashed border-white/20 rounded-2xl bg-white/5 hover:bg-white/10 transition-colors text-center group-hover:border-indigo-500/50 relative">
+          <input 
+            type="file" 
+            accept="image/*,application/pdf"
+            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" 
+            onChange={handleFileChange} 
+          />
           {!fileUrl ? (
             <div className="flex flex-col items-center justify-center space-y-3">
               <div className="w-12 h-12 rounded-full bg-indigo-500/10 flex items-center justify-center text-indigo-400 group-hover:scale-110 transition-transform">
